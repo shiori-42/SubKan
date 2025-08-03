@@ -1,20 +1,25 @@
 // src/app/subscription/list.tsx
-import { View, Text } from 'react-native'
+import { View, Text, FlatList } from 'react-native'
+import React, { useState } from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '@/component/Header'
 import SummaryCard from '@/component/SummaryCard'
+import SubscriptionCard from '@/component/SubscriptionCard'
 import { CreditCard, Calendar, BarChart3 } from 'lucide-react-native'
-import {
-  mockSubscriptions as subscriptions,
-  mockCategories,
-  Subscription, // 型もインポート
-} from '@/data/mockData'
+import { mockSubscriptions, Subscription } from '@/data/mockData'
 
 /**
  * サブスクリプション一覧画面のメインコンポーネント
- * 月額・年額サービスの集計と表示を行う
+ * サマリーカード、サブスクリプション一覧、編集・削除機能を含む
  */
 const List = (): React.JSX.Element => {
-  // 月額系のサブスクリプションをフィルタリング（月額、週額、3ヶ月、6ヶ月）
+  // サブスクリプションデータの状態管理（初期値はmockData）
+  const [subscriptions, setSubscriptions] =
+    useState<Subscription[]>(mockSubscriptions)
+
+  // ===== サブスクリプション集計ロジック =====
+
+  // 月額系（月額、週額、3ヶ月、6ヶ月）と年額に分類
   const monthlySubscriptions = subscriptions.filter(
     (sub) =>
       sub.cycle === '月額' ||
@@ -26,71 +31,101 @@ const List = (): React.JSX.Element => {
     (sub) => sub.cycle === '年額'
   )
 
-  // 年額サービスの合計金額を計算
+  // 月額系の合計を計算（異なる周期を月額に統一）
+  const totalMonthly = monthlySubscriptions.reduce((sum, sub) => {
+    switch (sub.cycle) {
+      case '週額':
+        // 週額を月額に換算：週額 × 4.33
+        // 理由：1ヶ月は約4.33週（365日 ÷ 7日 ÷ 12ヶ月）
+        return sum + sub.amount * 4.33
+      case '3ヶ月':
+        // 3ヶ月を月額に換算：3ヶ月額 ÷ 3
+        return sum + sub.amount / 3
+      case '6ヶ月':
+        // 6ヶ月を月額に換算：6ヶ月額 ÷ 6
+        return sum + sub.amount / 6
+      default:
+        // 月額はそのまま
+        return sum + sub.amount
+    }
+  }, 0)
+
+  // 年額の合計（換算不要）
   const totalYearly = yearlySubscriptions.reduce(
     (sum, sub) => sum + sub.amount,
     0
   )
 
-  // 月額系サービスの合計金額を計算（週額・3ヶ月・6ヶ月は月額に換算）
-  const totalMonthly = monthlySubscriptions.reduce((sum, sub) => {
-    // サイクルに応じて月額換算
-    switch (sub.cycle) {
-      case '週額':
-        return sum + sub.amount * 4.33 // 週額を月額に換算（1ヶ月 = 4.33週）
-      case '3ヶ月':
-        return sum + sub.amount / 3 // 3ヶ月を月額に換算
-      case '6ヶ月':
-        return sum + sub.amount / 6 // 6ヶ月を月額に換算
-      default:
-        return sum + sub.amount // 月額はそのまま
-    }
-  }, 0)
+  // ===== アクション関数 =====
+
+  const handleEdit = (subscription: Subscription) => {
+    console.log('Edit:', subscription.name)
+    // TODO: 編集ダイアログを開く処理を実装
+  }
+
+  const deleteSubscription = (id: string) => {
+    setSubscriptions((prev) => prev.filter((sub) => sub.id !== id))
+  }
+
+  // ===== データ処理 =====
+
+  // 支払い日が近い順にソート
+  const sortedSubscriptions = [...subscriptions].sort(
+    (a, b) => a.nextPayment.getTime() - b.nextPayment.getTime()
+  )
 
   return (
-    <View className="flex-1 bg-gray-100">
-      {/* ヘッダーコンポーネント */}
-      <Header />
-
-      {/* サマリーカードの横並びレイアウト */}
-      <View className="flex-row gap-2 p-4">
-        {/* 月額サービスのサマリーカード */}
-        <SummaryCard
-          icon={<CreditCard size={20} color="#f97316" />}
-          title="月額サービス"
-          value={`¥${Math.round(totalMonthly).toLocaleString()}`}
-          serviceCount={`${monthlySubscriptions.length}個`}
-        />
-
-        {/* 年額サービスのサマリーカード */}
-        <SummaryCard
-          icon={<Calendar size={20} color="#ec4899" />}
-          title="年額サービス"
-          value={`¥${totalYearly.toLocaleString()}`}
-          serviceCount={`${yearlySubscriptions.length}個`}
-        />
-
-        {/* 月換算総額のサマリーカード */}
-        <SummaryCard
-          icon={<BarChart3 size={20} color="#a855f7" />}
-          title="月換算"
-          value={`¥${Math.round(totalMonthly + totalYearly / 12).toLocaleString()}`}
-          serviceCount={`${subscriptions.length}個`}
-        />
-      </View>
-
-      {/* サブスクリプション一覧のタイトルセクション */}
-      <View>
-        <Text className="text-lg sm:text-xl font-bold text-gray-800">
-          サブスクリプション一覧
-        </Text>
-        {subscriptions.length > 0 && (
-          <Text className="text-xs sm:text-sm text-gray-600">
-            {subscriptions.length}件のサービス
-          </Text>
+    <SafeAreaView className="flex-1 bg-gray-100">
+      <FlatList
+        data={sortedSubscriptions}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <SubscriptionCard
+            subscription={item}
+            onEdit={handleEdit}
+            onDelete={deleteSubscription}
+          />
         )}
-      </View>
-    </View>
+        ItemSeparatorComponent={() => <View className="h-4" />}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
+        ListHeaderComponent={
+          <>
+            <Header />
+            <View className="flex-row gap-3 mb-4">
+              <SummaryCard
+                icon={<CreditCard size={20} color="#f97316" />}
+                title="月額サービス"
+                value={`¥${Math.round(totalMonthly).toLocaleString()}`}
+                serviceCount={`${monthlySubscriptions.length}個`}
+              />
+              <SummaryCard
+                icon={<Calendar size={20} color="#ec4899" />}
+                title="年額サービス"
+                value={`¥${totalYearly.toLocaleString()}`}
+                serviceCount={`${yearlySubscriptions.length}個`}
+              />
+              <SummaryCard
+                icon={<BarChart3 size={20} color="#a855f7" />}
+                title="月換算"
+                value={`¥${Math.round(totalMonthly + totalYearly / 12).toLocaleString()}`}
+                serviceCount="合計"
+              />
+            </View>
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-xl font-bold text-gray-800">
+                サブスクリプション一覧
+              </Text>
+              {subscriptions.length > 0 && (
+                <Text className="text-sm text-gray-600">
+                  {subscriptions.length}件のサービス
+                </Text>
+              )}
+            </View>
+          </>
+        }
+        ListFooterComponent={<View className="h-4" />}
+      />
+    </SafeAreaView>
   )
 }
 

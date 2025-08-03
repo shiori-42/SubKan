@@ -13,7 +13,7 @@ const SummaryCard = ({ icon, title, value, serviceCount }: SummaryCardProps) => 
     // Cardの役割をViewが担う。flex-1で均等に広がるようにする
     <View className="flex-1 bg-white/70 backdrop-blur-sm border-0 shadow-lg rounded-lg">
       {/* CardContentの役割 */}
-      <View className="p-2 items-center">
+      <View className="p-2 items-center mt-3">
         {icon}
         <Text className="text-xs text-gray-600 mt-1">{title}</Text>
         <Text className="text-sm sm:text-base font-bold text-gray-800">{value}</Text>
