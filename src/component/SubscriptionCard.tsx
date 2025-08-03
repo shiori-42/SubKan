@@ -25,7 +25,10 @@ const SubscriptionCard = ({
 
   return (
     // 全体を囲むカード：背景色を白に、影を少し柔らかく
-    <View className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 space-y-3 shadow-sm">
+    <View
+      className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 space-y-3"
+      style={styles.card}
+    >
       {/* 上部：アイコン、サービス名、金額、残り日数 */}
       <View className="flex-row items-start justify-between">
         <View className="flex-row items-center flex-1">
@@ -93,6 +96,16 @@ const SubscriptionCard = ({
 }
 
 const styles = StyleSheet.create({
+  card: {
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
   icon: {
     marginRight: 8,
   },

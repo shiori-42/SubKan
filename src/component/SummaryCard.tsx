@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
 
 interface SummaryCardProps {
@@ -16,7 +16,10 @@ const SummaryCard = ({
 }: SummaryCardProps) => {
   return (
     // Cardの役割をViewが担う。flex-1で均等に広がるようにする
-    <View className="flex-1 bg-white/95 backdrop-blur-sm border-0 shadow-sm rounded-lg">
+    <View
+      className="flex-1 bg-white/95 backdrop-blur-sm border-0 rounded-lg"
+      style={styles.card}
+    >
       {/* CardContentの役割 */}
       <View className="p-2 items-center mt-3">
         {icon}
@@ -29,5 +32,18 @@ const SummaryCard = ({
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  card: {
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+})
 
 export default SummaryCard
