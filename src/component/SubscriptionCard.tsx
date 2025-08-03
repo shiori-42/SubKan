@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Subscription } from '@/data/mockData'
 import { Edit3, Trash2 } from 'lucide-react-native'
 
@@ -25,12 +25,12 @@ const SubscriptionCard = ({
 
   return (
     // 全体を囲むカード：背景色を白に、影を少し柔らかく
-    <View className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 space-y-3 shadow-sm">
+    <View className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 space-y-3 shadow-sm">
       {/* 上部：アイコン、サービス名、金額、残り日数 */}
       <View className="flex-row items-start justify-between">
         <View className="flex-row items-center flex-1">
           {/* 円形アイコン：背景色を薄いピンクに */}
-          <View className="w-10 h-10 rounded-full bg-orange-200 items-center justify-center mr-3">
+          <View className="w-10 h-10 rounded-full bg-orange-300 items-center justify-center mr-3">
             <Text className="text-lg font-bold text-gray-800">
               {subscription.name.charAt(0)}
             </Text>
@@ -72,25 +72,31 @@ const SubscriptionCard = ({
       </View>
 
       {/* 下部：アクションボタン */}
-      <View className="flex-row space-x-3">
+      <View className="flex-row space-x-4">
         <Pressable
-          className="flex-1 bg-gray-100 items-center justify-center p-2.5 rounded-lg flex-row"
+          className="flex-1 bg-gray-100 items-center justify-center py-3 px-4 rounded-xl flex-row"
           onPress={() => onEdit(subscription)}
         >
-          <Edit3 className="text-gray-600 mr-2" size={14} />
+          <Edit3 color="#6b7280" size={16} style={styles.icon} />
           <Text className="text-sm font-medium text-gray-700">編集</Text>
         </Pressable>
         <Pressable
-          className="flex-1 bg-gray-100 items-center justify-center p-2.5 rounded-lg flex-row"
+          className="flex-1 bg-red-50 items-center justify-center py-3 px-4 rounded-xl flex-row"
           onPress={() => onDelete(subscription.id)}
         >
-          <Trash2 color="#ef4444" className="mr-2" size={14} />
-          <Text className="text-sm font-medium text-red-500">削除</Text>
+          <Trash2 color="#ef4444" size={16} style={styles.icon} />
+          <Text className="text-sm font-medium text-red-600">削除</Text>
         </Pressable>
       </View>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  icon: {
+    marginRight: 8,
+  },
+})
 
 // Propsの型定義は変更なし
 interface SubscriptionCardProps {

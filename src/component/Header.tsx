@@ -1,16 +1,13 @@
 // src/component/Header.tsx
-import { View, Text, StyleSheet } from 'react-native' // StyleSheetをインポート
-import { CreditCard } from 'lucide-react-native'
+import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { CreditCard, Settings, Plus } from 'lucide-react-native'
 
 const Header = (): React.JSX.Element => {
   return (
-    <View className="flex-row items-center justify-between mb-4 sm:mb-6 p-4 h-[104px]">
+    <View className="flex-row items-end justify-between p-4 h-[104px]">
+      {/* ロゴ部分 */}
       <View className="flex-row items-center">
-        <CreditCard
-          color="#f97316" // "text-orange-500" の色
-          size={28}
-          style={styles.icon} // "mr-3" のスタイル
-        />
+        <CreditCard color="#f97316" size={28} style={styles.icon} />
         <View>
           <Text className="text-2xl font-bold text-gray-800">サブカン</Text>
           <Text className="text-sm sm:text-base text-gray-600">
@@ -18,15 +15,27 @@ const Header = (): React.JSX.Element => {
           </Text>
         </View>
       </View>
-      <View>{/* ここにボタンなどを追加していく */}</View>
+      <View className="flex-row space-x-2">
+        {/* 設定ボタン */}
+        <Pressable className="bg-white/70 p-2 rounded-lg mr-2">
+          <Settings color="#374151" size={20} />
+        </Pressable>
+        {/* 追加ボタン */}
+        <Pressable className="bg-orange-400 p-2 rounded-lg flex-row items-center">
+          <Plus color="white" size={20} style={styles.plusIcon} />
+          <Text className="text-white font-semibold">追加</Text>
+        </Pressable>
+      </View>
     </View>
   )
 }
 
-// アイコンのスタイルを定義
 const styles = StyleSheet.create({
   icon: {
-    marginRight: 12, // Tailwindの mr-3 は 12px
+    marginRight: 12,
+  },
+  plusIcon: {
+    marginRight: 4,
   },
 })
 
