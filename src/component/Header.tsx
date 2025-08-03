@@ -1,3 +1,4 @@
+// src/component/Header.tsx
 import { View, Text, StyleSheet } from 'react-native' // StyleSheetをインポート
 import { CreditCard } from 'lucide-react-native'
 
