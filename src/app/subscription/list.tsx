@@ -75,7 +75,7 @@ const List = (): React.JSX.Element => {
   )
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-orange-50">
       <FlatList
         data={sortedSubscriptions}
         keyExtractor={(item) => item.id}
@@ -116,7 +116,7 @@ const List = (): React.JSX.Element => {
                 サブスクリプション一覧
               </Text>
               {subscriptions.length > 0 && (
-                <Text className="text-sm text-gray-600">
+                <Text className="text-sm text-gray-800">
                   {subscriptions.length}件のサービス
                 </Text>
               )}

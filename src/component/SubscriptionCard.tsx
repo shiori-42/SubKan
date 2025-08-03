@@ -25,7 +25,7 @@ const SubscriptionCard = ({
 
   return (
     // 全体を囲むカード：背景色を白に、影を少し柔らかく
-    <View className="bg-white rounded-2xl p-4 space-y-3 shadow-sm">
+    <View className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 space-y-3 shadow-sm">
       {/* 上部：アイコン、サービス名、金額、残り日数 */}
       <View className="flex-row items-start justify-between">
         <View className="flex-row items-center flex-1">
@@ -41,12 +41,12 @@ const SubscriptionCard = ({
               {subscription.name}
             </Text>
             <View className="flex-row items-center mt-1">
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-800">
                 ¥{subscription.amount.toLocaleString()} / {subscription.cycle}
               </Text>
               {/* カテゴリバッジ */}
               <View className="px-2 py-0.5 ml-2 border border-gray-200 rounded-full">
-                <Text className="text-xs text-gray-500">
+                <Text className="text-xs text-gray-800">
                   {subscription.category}
                 </Text>
               </View>
@@ -64,7 +64,7 @@ const SubscriptionCard = ({
       {/* 中部：日付情報 */}
       <View className="bg-gray-50 rounded-lg p-3">
         <View className="flex-row justify-between items-center">
-          <Text className="text-sm text-gray-500">次回支払い</Text>
+          <Text className="text-sm text-gray-800">次回支払い</Text>
           <Text className="text-sm font-semibold text-gray-800">
             {formatDate(subscription.nextPayment)}
           </Text>
