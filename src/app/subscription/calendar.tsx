@@ -1,0 +1,554 @@
+import { useState } from 'react'
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
+  StyleSheet,
+} from 'react-native'
+import * as holiday_jp from '@holiday-jp/holiday_jp'
+import Header from '@/component/Header'
+import { mockSubscriptions, Subscription } from '@/data/mockData'
+
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  CreditCard,
+  AlertTriangle,
+  X,
+} from 'lucide-react-native'
+
+interface CalendarEvent {
+  subscription: Subscription
+  type: 'payment' | 'cancel'
+}
+
+export function Calendar() {
+  const [subscriptions] = useState<Subscription[]>(mockSubscriptions)
+  const [currentDate, setCurrentDate] = useState(
+    new Date('2025-08-05T12:00:00')
+  )
+  const [selectedDate, setSelectedDate] = useState<number | null>(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+
+  // 祝日判定ロジック: 日本の祝日ライブラリを使用して祝日かどうかを判定
+  const isHoliday = (date: Date): boolean => {
+    return holiday_jp.isHoliday(date)
+  }
+
+  // 月の日数計算: 指定された月の最終日を取得して日数を算出
+  const getDaysInMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+  }
+
+  // 月の最初の曜日計算: その月の1日が何曜日かを取得（0=日曜日）
+  const getFirstDayOfMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
+  }
+
+  // 月間ナビゲーション: 前月/次月への移動時に選択状態をリセット
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentDate((prev) => {
+      const newDate = new Date(prev)
+      newDate.setDate(1)
+      if (direction === 'prev') {
+        newDate.setMonth(newDate.getMonth() - 1)
+      } else {
+        newDate.setMonth(newDate.getMonth() + 1)
+      }
+      return newDate
+    })
+    setSelectedDate(null)
+  }
+
+  /**
+   * 次回支払い日計算ロジック
+   * サブスクリプションの支払いサイクルに基づいて、指定月の支払い日を算出
+   *
+   * ビジネスルール:
+   * - 月額: 毎月同じ日に支払い
+   * - 年額: 毎年同じ月・日に支払い
+   * - 週額/3ヶ月/6ヶ月: 基準日から指定間隔で繰り返し
+   * - 過去の支払い日は対象外
+   *
+   * @param subscription サブスクリプション情報
+   * @param fromDate 計算対象月
+   * @returns 該当月の支払い日（該当なしの場合はnull）
+   */
+  const calculateNextPaymentDate = (
+    subscription: Subscription,
+    fromDate: Date
+  ): Date | null => {
+    const { nextPayment, cycle } = subscription
+    const targetYear = fromDate.getFullYear()
+    const targetMonth = fromDate.getMonth()
+    const basePaymentDate = new Date(nextPayment)
+
+    // 基準支払い日が対象月より未来の場合は、月額・年額以外は対象外
+    if (
+      basePaymentDate.getFullYear() > targetYear ||
+      (basePaymentDate.getFullYear() === targetYear &&
+        basePaymentDate.getMonth() > targetMonth)
+    ) {
+      if (cycle === '月額' || cycle === '年額') return null
+    }
+
+    let candidateDate: Date | null = null
+
+    // 支払いサイクル別の計算ロジック
+    switch (cycle) {
+      case '月額':
+        // 月額: 基準日が対象月以前の場合のみ、対象月の同じ日に設定
+        if (
+          basePaymentDate.getFullYear() < targetYear ||
+          (basePaymentDate.getFullYear() === targetYear &&
+            basePaymentDate.getMonth() <= targetMonth)
+        ) {
+          candidateDate = new Date(
+            targetYear,
+            targetMonth,
+            basePaymentDate.getDate()
+          )
+        }
+        break
+
+      case '年額':
+        // 年額: 基準月と対象月が一致する場合のみ、同じ日に設定
+        if (
+          basePaymentDate.getFullYear() <= targetYear &&
+          basePaymentDate.getMonth() === targetMonth
+        ) {
+          candidateDate = new Date(
+            targetYear,
+            targetMonth,
+            basePaymentDate.getDate()
+          )
+        }
+        break
+
+      default:
+        // 週額/3ヶ月/6ヶ月: 基準日から指定間隔で繰り返し計算
+        let tempDate = new Date(basePaymentDate)
+
+        // 対象月に到達するまで日付を進める
+        while (
+          tempDate.getFullYear() < targetYear ||
+          (tempDate.getFullYear() === targetYear &&
+            tempDate.getMonth() < targetMonth)
+        ) {
+          if (cycle === '週額') tempDate.setDate(tempDate.getDate() + 7)
+          if (cycle === '3ヶ月') tempDate.setMonth(tempDate.getMonth() + 3)
+          if (cycle === '6ヶ月') tempDate.setMonth(tempDate.getMonth() + 6)
+        }
+
+        // 計算結果が対象月と一致する場合のみ有効
+        if (
+          tempDate.getFullYear() === targetYear &&
+          tempDate.getMonth() === targetMonth
+        ) {
+          candidateDate = tempDate
+        }
+        break
+    }
+
+    // 最終チェック: 計算結果が対象月と一致することを確認
+    if (candidateDate && candidateDate.getMonth() !== targetMonth) {
+      return null
+    }
+
+    return candidateDate
+  }
+
+  /**
+   * 指定日のイベント取得ロジック
+   * 支払い予定日と解約期限日を統合して、指定日の全イベントを取得
+   *
+   * ビジネスルール:
+   * - 支払い予定日と解約期限日は同じ日に複数存在可能
+   * - 日付の完全一致のみを対象とする
+   *
+   * @param day 対象日
+   * @returns その日のイベント配列
+   */
+  const getEventsForDate = (day: number): CalendarEvent[] => {
+    const events: CalendarEvent[] = []
+
+    // 全サブスクリプションの支払い予定日をチェック
+    subscriptions.forEach((sub) => {
+      const paymentDate = calculateNextPaymentDate(sub, currentDate)
+
+      // 支払い予定日が指定日と一致する場合
+      if (
+        paymentDate &&
+        paymentDate.getDate() === day &&
+        paymentDate.getMonth() === currentDate.getMonth() &&
+        paymentDate.getFullYear() === currentDate.getFullYear()
+      ) {
+        events.push({ subscription: sub, type: 'payment' })
+      }
+
+      // 解約期限日が指定日と一致する場合
+      if (sub.cancelDeadline) {
+        const cancelDate = new Date(sub.cancelDeadline)
+        if (
+          cancelDate.getFullYear() === currentDate.getFullYear() &&
+          cancelDate.getMonth() === currentDate.getMonth() &&
+          cancelDate.getDate() === day
+        ) {
+          events.push({ subscription: sub, type: 'cancel' })
+        }
+      }
+    })
+
+    return events
+  }
+
+  // 日付クリック処理: イベントが存在する日のみ詳細表示を有効化
+  const handleDateClick = (day: number) => {
+    const events = getEventsForDate(day)
+    if (events.length > 0) {
+      setSelectedDate(day)
+      setIsDetailOpen(true)
+    }
+  }
+
+  // 選択日付のフォーマット: 日本語形式で年月日と曜日を表示
+  const formatSelectedDate = () => {
+    if (selectedDate === null) return ''
+    return new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      selectedDate
+    ).toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    })
+  }
+
+  // 選択日付のイベント取得: 選択された日付の全イベントを取得
+  const getSelectedDateEvents = (): CalendarEvent[] => {
+    if (selectedDate === null) return []
+    return getEventsForDate(selectedDate)
+  }
+
+  // カレンダー表示用データの計算
+  const daysInMonth = getDaysInMonth(currentDate)
+  const firstDayOfMonth = getFirstDayOfMonth(currentDate)
+  const monthName = currentDate.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+  })
+  const dayNames = ['日', '月', '火', '水', '木', '金', '土']
+  const days = [
+    ...Array.from({ length: firstDayOfMonth }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ]
+
+  /**
+   * 月間支出予定額計算ロジック
+   * 表示月の全支払い予定額を合計して月間支出予定を算出
+   *
+   * ビジネスルール:
+   * - 支払い予定日が表示月に含まれるサブスクリプションのみ対象
+   * - 解約期限は支出計算に含めない
+   */
+  const monthlyTotal = subscriptions.reduce((total, sub) => {
+    const paymentDate = calculateNextPaymentDate(sub, currentDate)
+    if (
+      paymentDate &&
+      paymentDate.getMonth() === currentDate.getMonth() &&
+      paymentDate.getFullYear() === currentDate.getFullYear()
+    ) {
+      return total + sub.amount
+    }
+    return total
+  }, 0)
+
+  return (
+    <View className="space-y-4 p-4 bg-orange-50 flex-1">
+      <Header />
+      <View className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-lg shadow-lg p-4">
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center">
+            <CalendarIcon
+              className="w-6 h-6 text-pink-500"
+              style={styles.calendarHeaderIcon}
+            />
+            <View className="space-y-0.5">
+              <Text className="text-lg text-gray-800 font-bold">
+                {monthName}
+              </Text>
+              {monthlyTotal > 0 && (
+                <Text className="text-sm text-gray-800">
+                  月間支出予定: ¥{monthlyTotal.toLocaleString()}
+                </Text>
+              )}
+            </View>
+          </View>
+          <View className="flex-row" style={styles.navButtonContainer}>
+            <TouchableOpacity
+              onPress={() => navigateMonth('prev')}
+              className="p-2.5 bg-white/70 rounded-md border border-gray-200"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-800" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigateMonth('next')}
+              className="p-2.5 bg-white/70 rounded-md border border-gray-200"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-800" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+      <View className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-lg shadow-lg p-4">
+        <View className="flex-row mb-2">
+          {dayNames.map((dayName, index) => (
+            <View
+              key={dayName}
+              className="flex-1 items-center justify-center p-2 rounded-t-lg"
+            >
+              <Text
+                className={`font-medium text-sm ${
+                  index === 0
+                    ? 'text-red-600'
+                    : index === 6
+                      ? 'text-blue-600'
+                      : 'text-gray-600'
+                }`}
+              >
+                {dayName}
+              </Text>
+            </View>
+          ))}
+        </View>
+        <View className="flex-row flex-wrap">
+          {days.map((day, index) => {
+            if (day === null) {
+              return <View key={`empty-${index}`} className="w-[14.28%] h-20" />
+            }
+            const events = getEventsForDate(day)
+            const hasEvents = events.length > 0
+            const dayOfWeek = (firstDayOfMonth + day - 1) % 7
+            const dateObj = new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              day
+            )
+            const isToday =
+              day === new Date().getDate() &&
+              currentDate.getMonth() === new Date().getMonth() &&
+              currentDate.getFullYear() === new Date().getFullYear()
+            const isHolidayDate = isHoliday(dateObj)
+            let dayContainerClass = 'bg-white/50 border-gray-200/80'
+            let dayTextClass = 'text-gray-800'
+            if (isToday) {
+              dayContainerClass = 'bg-orange-100 border-orange-300'
+            } else if (isHolidayDate || dayOfWeek === 0) {
+              dayContainerClass = 'bg-pink-50/80 border-pink-200'
+              dayTextClass = 'text-red-600'
+            } else if (dayOfWeek === 6) {
+              dayContainerClass = 'bg-blue-50/80 border-blue-200'
+              dayTextClass = 'text-blue-600'
+            }
+            if (hasEvents) {
+              dayContainerClass += ' active:bg-blue-100'
+            }
+            return (
+              <TouchableOpacity
+                key={day}
+                className={`w-[14.28%] h-20 p-1 border rounded-lg ${dayContainerClass}`}
+                onPress={() => handleDateClick(day)}
+                activeOpacity={0.7}
+              >
+                <Text className={`text-sm font-medium ${dayTextClass}`}>
+                  {day}
+                </Text>
+                <View className="space-y-1 mt-1">
+                  {events.slice(0, 1).map((event, eventIndex) => (
+                    <View
+                      key={eventIndex}
+                      className={`px-1 py-0.5 rounded ${
+                        event.type === 'payment' ? 'bg-blue-500' : 'bg-red-500'
+                      }`}
+                    >
+                      <Text className="text-white text-xs" numberOfLines={1}>
+                        {event.subscription.name}
+                      </Text>
+                    </View>
+                  ))}
+                  {events.length > 1 && (
+                    <Text className="text-xs text-gray-500">
+                      +{events.length - 1}
+                    </Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+            )
+          })}
+        </View>
+      </View>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isDetailOpen}
+        onRequestClose={() => setIsDetailOpen(false)}
+      >
+        <View className="absolute inset-0 justify-center items-center p-4 bg-black/75 backdrop-blur-sm">
+          <View className="bg-neutral-50 rounded-lg shadow-xl w-full max-w-md max-h-[90%]">
+            <View className="p-4 border-b border-gray-200 flex-row items-center justify-between">
+              <View className="flex-row items-center flex-1">
+                <CalendarIcon
+                  className="w-6 h-6 text-pink-500 shrink-0"
+                  style={styles.modalHeaderIcon}
+                />
+                <Text
+                  className="text-xl font-bold text-gray-800"
+                  numberOfLines={1}
+                >
+                  {formatSelectedDate()}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setIsDetailOpen(false)}
+                className="p-1 rounded-full active:bg-gray-200"
+              >
+                <X className="w-5 h-5 text-gray-800" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView contentContainerStyle={{ padding: 16 }}>
+              {getSelectedDateEvents().map((event, index) => (
+                <View
+                  key={index}
+                  className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200/60"
+                >
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center flex-1 min-w-0">
+                      {/* ▼▼▼▼▼ ここを SubscriptionCard のスタイルに合わせます ▼▼▼▼▼ */}
+                      <View
+                        className="w-10 h-10 rounded-full bg-orange-300 items-center justify-center shrink-0"
+                        style={styles.subscriptionIconContainer}
+                      >
+                        <Text className="text-lg font-bold text-gray-800">
+                          {event.subscription.name.charAt(0)}
+                        </Text>
+                      </View>
+                      {/* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */}
+                      <View className="flex-1">
+                        <Text
+                          className="text-lg font-semibold text-gray-800"
+                          numberOfLines={1}
+                        >
+                          {event.subscription.name}
+                        </Text>
+                        <View className="border border-gray-300 rounded-full px-2 py-0.5 mt-1 self-start">
+                          <Text className="text-xs text-gray-800">
+                            {event.subscription.category}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View className="shrink-0 ml-2">
+                      {event.type === 'payment' ? (
+                        <View className="flex-row items-center bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full">
+                          <CreditCard
+                            className="w-4 h-4 text-blue-600"
+                            style={styles.badgeIcon}
+                          />
+                          <Text className="text-xs font-medium text-blue-800">
+                            支払い
+                          </Text>
+                        </View>
+                      ) : (
+                        <View className="flex-row items-center bg-red-100 text-red-800 px-2.5 py-1 rounded-full">
+                          <AlertTriangle
+                            className="w-4 h-4 text-red-600"
+                            style={styles.badgeIcon}
+                          />
+                          <Text className="text-xs font-medium text-red-800">
+                            解約期限
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+
+                  {event.type === 'payment' ? (
+                    <View className="space-y-3 mt-2">
+                      <View className="flex-row justify-between items-center">
+                        <Text className="text-sm text-gray-600">
+                          支払い金額
+                        </Text>
+                        <Text className="text-lg font-bold text-gray-800">
+                          ¥{event.subscription.amount.toLocaleString()}
+                        </Text>
+                      </View>
+                      <View className="flex-row justify-between items-center">
+                        <Text className="text-sm text-gray-600">
+                          支払いサイクル
+                        </Text>
+                        <Text className="text-sm font-medium text-gray-800">
+                          {event.subscription.cycle}
+                        </Text>
+                      </View>
+                    </View>
+                  ) : (
+                    <View className="space-y-3 mt-2">
+                      <View className="flex-row justify-between items-center">
+                        <Text className="text-sm text-gray-600">
+                          解約手続き期限
+                        </Text>
+                        <Text className="text-sm font-medium text-red-600">
+                          {event.subscription.cancelDeadline?.toLocaleDateString(
+                            'ja-JP'
+                          )}
+                        </Text>
+                      </View>
+                      <View className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <Text className="text-sm text-red-700 leading-relaxed">
+                          継続しない場合は、この日までに解約手続きを完了してください。
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              ))}
+              {getSelectedDateEvents().length === 0 && (
+                <View className="items-center py-8">
+                  <CalendarIcon className="w-12 h-12 text-gray-400 mb-3" />
+                  <Text className="text-base text-gray-800">
+                    この日は予定がありません
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  calendarHeaderIcon: {
+    marginRight: 16,
+  },
+  navButtonContainer: {
+    gap: 12,
+  },
+  modalHeaderIcon: {
+    marginRight: 16,
+  },
+  subscriptionIconContainer: {
+    marginRight: 16,
+  },
+  badgeIcon: {
+    marginRight: 6,
+  },
+})
+
+export default Calendar

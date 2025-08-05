@@ -9,11 +9,13 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@holiday-jp/holiday_jp": "^2.5.1",
     "expo": "~53.0.0",
     "expo-constants": "~17.1.0",
     "expo-linking": "~7.1.0",
     "expo-router": "~5.1.0",
     "expo-status-bar": "~2.2.0",
+    "lucide-react-native": "^0.536.0",
     "nativewind": "^4.0.36",
     "react": "19.0.0",
     "react-native": "0.79.5",
@@ -21,8 +23,7 @@
     "react-native-reanimated": "~3.17.0",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.0",
-    "react-native-svg": "15.11.2",
-    "lucide-react-native": "^0.536.0"
+    "react-native-svg": "15.11.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

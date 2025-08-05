@@ -10,6 +10,23 @@ export interface Subscription {
   color: string
 }
 
+// // --- 型定義 ---
+// interface Subscription {
+//   id: string
+//   name: string
+//   amount: number
+//   cycle: '週額' | '月額' | '3ヶ月' | '6ヶ月' | '年額'
+//   nextPayment: Date
+//   cancelDeadline?: Date
+//   category: string
+//   color: string
+// }
+
+export interface CalendarEvent {
+  subscription: Subscription
+  type: 'payment' | 'cancel'
+}
+
 // サブスクリプションのデータをエクスポート
 export const mockSubscriptions: Subscription[] = [
   {
@@ -17,7 +34,7 @@ export const mockSubscriptions: Subscription[] = [
     name: 'Netflix',
     amount: 1490,
     cycle: '月額',
-    nextPayment: new Date('2025-02-15'),
+    nextPayment: new Date('2025-09-15'),
     category: 'エンターテイメント',
     color: 'bg-red-100 text-red-800',
   },
@@ -26,7 +43,7 @@ export const mockSubscriptions: Subscription[] = [
     name: 'Spotify',
     amount: 980,
     cycle: '月額',
-    nextPayment: new Date('2025-02-20'),
+    nextPayment: new Date('2025-08-20'),
     cancelDeadline: new Date('2025-02-13'),
     category: 'エンターテイメント',
     color: 'bg-green-100 text-green-800',
@@ -36,7 +53,7 @@ export const mockSubscriptions: Subscription[] = [
     name: 'Adobe Creative Cloud',
     amount: 6480,
     cycle: '月額',
-    nextPayment: new Date('2025-03-01'),
+    nextPayment: new Date('2025-10-01'),
     category: '仕事・ビジネス',
     color: 'bg-purple-100 text-purple-800',
   },
@@ -45,7 +62,7 @@ export const mockSubscriptions: Subscription[] = [
     name: 'Microsoft 365',
     amount: 1284,
     cycle: '月額',
-    nextPayment: new Date('2025-02-10'),
+    nextPayment: new Date('2025-08-10'),
     category: '仕事・ビジネス',
     color: 'bg-blue-100 text-blue-800',
   },
@@ -54,7 +71,7 @@ export const mockSubscriptions: Subscription[] = [
     name: 'iCloud+',
     amount: 130,
     cycle: '月額',
-    nextPayment: new Date('2025-02-25'),
+    nextPayment: new Date('2025-08-25'),
     category: 'クラウド・ストレージ',
     color: 'bg-gray-100 text-gray-800',
   },
@@ -63,7 +80,7 @@ export const mockSubscriptions: Subscription[] = [
     name: 'Amazon Prime',
     amount: 4900,
     cycle: '年額',
-    nextPayment: new Date('2025-04-15'),
+    nextPayment: new Date('2025-08-10'),
     category: 'エンターテイメント',
     color: 'bg-yellow-100 text-yellow-800',
   },
@@ -72,7 +89,7 @@ export const mockSubscriptions: Subscription[] = [
     name: 'YouTube Premium',
     amount: 1180,
     cycle: '月額',
-    nextPayment: new Date('2025-02-28'),
+    nextPayment: new Date('2025-08-10'),
     category: 'エンターテイメント',
     color: 'bg-red-100 text-red-800',
   },
@@ -81,7 +98,7 @@ export const mockSubscriptions: Subscription[] = [
     name: 'Dropbox Plus',
     amount: 12000,
     cycle: '年額',
-    nextPayment: new Date('2025-06-20'),
+    nextPayment: new Date('2025-08-10'),
     category: 'クラウド・ストレージ',
     color: 'bg-blue-100 text-blue-800',
   },
@@ -90,8 +107,8 @@ export const mockSubscriptions: Subscription[] = [
     name: 'Disney+',
     amount: 990,
     cycle: '月額',
-    nextPayment: new Date('2025-02-12'),
-    cancelDeadline: new Date('2025-02-05'),
+    nextPayment: new Date('2025-09-12'),
+    cancelDeadline: new Date('2025-08-15'),
     category: 'エンターテイメント',
     color: 'bg-purple-100 text-purple-800',
   },
