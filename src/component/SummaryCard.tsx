@@ -21,7 +21,7 @@ const SummaryCard = ({
       style={styles.card}
     >
       {/* CardContentの役割 */}
-      <View className="p-2 items-center mt-3">
+      <View className="p-2 items-center">
         {icon}
         <Text className="text-xs text-gray-800 mt-1">{title}</Text>
         <Text className="text-sm sm:text-base font-bold text-gray-800">

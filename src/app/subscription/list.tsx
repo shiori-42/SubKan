@@ -2,7 +2,6 @@
 import { View, Text, FlatList } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Header from '@/component/Header'
 import SummaryCard from '@/component/SummaryCard'
 import SubscriptionCard from '@/component/SubscriptionCard'
 import { CreditCard, Calendar, BarChart3 } from 'lucide-react-native'
@@ -12,7 +11,7 @@ import { mockSubscriptions, Subscription } from '@/data/mockData'
  * サブスクリプション一覧画面のメインコンポーネント
  * サマリーカード、サブスクリプション一覧、編集・削除機能を含む
  */
-const List = (): React.JSX.Element => {
+const ListView = (): React.JSX.Element => {
   // サブスクリプションデータの状態管理（初期値はmockData）
   const [subscriptions, setSubscriptions] =
     useState<Subscription[]>(mockSubscriptions)
@@ -75,58 +74,59 @@ const List = (): React.JSX.Element => {
   )
 
   return (
-    <SafeAreaView className="flex-1 bg-orange-50">
-      <FlatList
-        data={sortedSubscriptions}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <SubscriptionCard
-            subscription={item}
-            onEdit={handleEdit}
-            onDelete={deleteSubscription}
-          />
-        )}
-        ItemSeparatorComponent={() => <View className="h-4" />}
-        contentContainerStyle={{ paddingHorizontal: 16 }}
-        ListHeaderComponent={
-          <>
-            <Header />
-            <View className="flex-row gap-3 mb-4">
-              <SummaryCard
-                icon={<CreditCard size={20} color="#f97316" />}
-                title="月額サービス"
-                value={`¥${Math.round(totalMonthly).toLocaleString()}`}
-                serviceCount={`${monthlySubscriptions.length}個`}
-              />
-              <SummaryCard
-                icon={<Calendar size={20} color="#ec4899" />}
-                title="年額サービス"
-                value={`¥${totalYearly.toLocaleString()}`}
-                serviceCount={`${yearlySubscriptions.length}個`}
-              />
-              <SummaryCard
-                icon={<BarChart3 size={20} color="#a855f7" />}
-                title="月換算"
-                value={`¥${Math.round(totalMonthly + totalYearly / 12).toLocaleString()}`}
-                serviceCount="合計"
-              />
-            </View>
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-xl font-bold text-gray-800">
-                サブスクリプション一覧
+    <View className="p-4 bg-orange-50 flex-1">
+      {/* サマリーカード */}
+      <View className="flex-row gap-3">
+        <SummaryCard
+          icon={<CreditCard size={20} color="#f97316" />}
+          title="月額サービス"
+          value={`¥${Math.round(totalMonthly).toLocaleString()}`}
+          serviceCount={`${monthlySubscriptions.length}個`}
+        />
+        <SummaryCard
+          icon={<Calendar size={20} color="#ec4899" />}
+          title="年額サービス"
+          value={`¥${totalYearly.toLocaleString()}`}
+          serviceCount={`${yearlySubscriptions.length}個`}
+        />
+        <SummaryCard
+          icon={<BarChart3 size={20} color="#a855f7" />}
+          title="月換算"
+          value={`¥${Math.round(totalMonthly + totalYearly / 12).toLocaleString()}`}
+          serviceCount={`${subscriptions.length}個`}
+        />
+      </View>
+
+      {/* サブスクリプション一覧 */}
+      <View className="bg-white rounded-lg border border-gray-200 shadow-lg flex-1 mt-4">
+        <View className="p-4 pb-2">
+          <View className="flex-row justify-between items-center">
+            <Text className="text-lg text-gray-800 font-bold">
+              サブスクリプション一覧
+            </Text>
+            {subscriptions.length > 0 && (
+              <Text className="text-sm text-gray-800">
+                {subscriptions.length}件のサービス
               </Text>
-              {subscriptions.length > 0 && (
-                <Text className="text-sm text-gray-800">
-                  {subscriptions.length}件のサービス
-                </Text>
-              )}
-            </View>
-          </>
-        }
-        ListFooterComponent={<View className="h-4" />}
-      />
-    </SafeAreaView>
+            )}
+          </View>
+        </View>
+        <FlatList
+          data={sortedSubscriptions}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <SubscriptionCard
+              subscription={item}
+              onEdit={handleEdit}
+              onDelete={deleteSubscription}
+            />
+          )}
+          ItemSeparatorComponent={() => <View className="h-4" />}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+        />
+      </View>
+    </View>
   )
 }
 
-export default List
+export default ListView

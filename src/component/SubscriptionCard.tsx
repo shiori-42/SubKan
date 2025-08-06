@@ -14,6 +14,23 @@ const getDaysUntil = (date: Date) => {
   const diffTime = targetDate.getTime() - today.getTime()
   return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)))
 }
+
+const getCategoryColor = (category: string) => {
+  const categoryColors = {
+    エンターテイメント: 'bg-pink-100 text-pink-800 border-pink-300',
+    ビジネス: 'bg-blue-100 text-blue-800 border-blue-300',
+    クラウド: 'bg-violet-100 text-violet-800 border-violet-300',
+    フィットネス: 'bg-green-100 text-green-800 border-green-300',
+    食品: 'bg-amber-100 text-amber-800 border-amber-300',
+    日用品: 'bg-cyan-100 text-cyan-800 border-cyan-300',
+    美容: 'bg-pink-100 text-pink-800 border-pink-300',
+    その他: 'bg-orange-100 text-orange-800 border-orange-300',
+  }
+  return (
+    categoryColors[category as keyof typeof categoryColors] ||
+    categoryColors['その他']
+  )
+}
 // --- Helper Functions End ---
 
 const SubscriptionCard = ({
@@ -48,7 +65,9 @@ const SubscriptionCard = ({
                 ¥{subscription.amount.toLocaleString()} / {subscription.cycle}
               </Text>
               {/* カテゴリバッジ */}
-              <View className="px-2 py-0.5 ml-2 border border-gray-200 rounded-full">
+              <View
+                className={`px-2 py-0.5 ml-2 rounded-full ${getCategoryColor(subscription.category)}`}
+              >
                 <Text className="text-xs text-gray-800">
                   {subscription.category}
                 </Text>

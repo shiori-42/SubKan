@@ -9,7 +9,6 @@ import {
   Pressable,
 } from 'react-native'
 import * as holiday_jp from '@holiday-jp/holiday_jp'
-import Header from '@/component/Header'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
 
 import {
@@ -28,7 +27,7 @@ interface CalendarEvent {
   type: 'payment' | 'cancel'
 }
 
-export function Calendar() {
+export function CalendarView() {
   const [subscriptions, setSubscriptions] =
     useState<Subscription[]>(mockSubscriptions)
   const [currentDate, setCurrentDate] = useState(
@@ -40,6 +39,24 @@ export function Calendar() {
   // 祝日判定ロジック: 日本の祝日ライブラリを使用して祝日かどうかを判定
   const isHoliday = (date: Date): boolean => {
     return holiday_jp.isHoliday(date)
+  }
+
+  // カテゴリ色取得関数
+  const getCategoryColor = (category: string) => {
+    const categoryColors = {
+      エンターテイメント: 'bg-pink-100 text-pink-800 border-pink-300',
+      ビジネス: 'bg-blue-100 text-blue-800 border-blue-300',
+      クラウド: 'bg-violet-100 text-violet-800 border-violet-300',
+      フィットネス: 'bg-green-100 text-green-800 border-green-300',
+      食品: 'bg-amber-100 text-amber-800 border-amber-300',
+      日用品: 'bg-cyan-100 text-cyan-800 border-cyan-300',
+      美容: 'bg-pink-100 text-pink-800 border-pink-300',
+      その他: 'bg-orange-100 text-orange-800 border-orange-300',
+    }
+    return (
+      categoryColors[category as keyof typeof categoryColors] ||
+      categoryColors['その他']
+    )
   }
 
   // 月の日数計算: 指定された月の最終日を取得して日数を算出
@@ -301,7 +318,6 @@ export function Calendar() {
 
   return (
     <View className="space-y-4 p-4 bg-orange-50 flex-1">
-      <Header />
       <View className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
         <View className="p-4 pb-2">
           <View className="flex-row items-center justify-between">
@@ -493,7 +509,9 @@ export function Calendar() {
                         >
                           {event.subscription.name}
                         </Text>
-                        <View className="border border-gray-300 rounded-full px-2 py-0.5 mt-1 self-start">
+                        <View
+                          className={`px-2 py-0.5 mt-1 self-start rounded-full ${getCategoryColor(event.subscription.category)}`}
+                        >
                           <Text className="text-xs text-gray-800">
                             {event.subscription.category}
                           </Text>
@@ -636,4 +654,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default Calendar
+export default CalendarView
