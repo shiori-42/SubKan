@@ -6,6 +6,7 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
+  Pressable,
 } from 'react-native'
 import * as holiday_jp from '@holiday-jp/holiday_jp'
 import Header from '@/component/Header'
@@ -18,6 +19,8 @@ import {
   CreditCard,
   AlertTriangle,
   X,
+  Edit3,
+  Trash2,
 } from 'lucide-react-native'
 
 interface CalendarEvent {
@@ -26,7 +29,8 @@ interface CalendarEvent {
 }
 
 export function Calendar() {
-  const [subscriptions] = useState<Subscription[]>(mockSubscriptions)
+  const [subscriptions, setSubscriptions] =
+    useState<Subscription[]>(mockSubscriptions)
   const [currentDate, setCurrentDate] = useState(
     new Date('2025-08-05T12:00:00')
   )
@@ -267,6 +271,33 @@ export function Calendar() {
     }
     return total
   }, 0)
+
+  /**
+   * サブスクリプション編集ハンドラー
+   * 編集画面への遷移処理を実装
+   *
+   * @param subscription 編集対象のサブスクリプション
+   */
+  const handleEditSubscription = (subscription: Subscription) => {
+    // TODO: 編集画面への遷移処理を実装
+    console.log('編集:', subscription.name)
+    // 例: navigation.navigate('EditSubscription', { subscription })
+  }
+
+  /**
+   * サブスクリプション削除ハンドラー
+   * 確認ダイアログ表示後に削除処理を実行
+   *
+   * @param id 削除対象のサブスクリプションID
+   */
+  const handleDeleteSubscription = (id: string) => {
+    // TODO: 削除確認ダイアログを表示
+    console.log('削除:', id)
+
+    // 削除処理（確認後）
+    setSubscriptions((prev) => prev.filter((sub) => sub.id !== id))
+    setIsDetailOpen(false) // モーダルを閉じる
+  }
 
   return (
     <View className="space-y-4 p-4 bg-orange-50 flex-1">
@@ -515,6 +546,38 @@ export function Calendar() {
                       </View>
                     </View>
                   )}
+
+                  {/* アクションボタン: 編集・削除 */}
+                  <View className="flex-row space-x-4 mt-4 pt-4 border-t border-gray-200">
+                    <Pressable
+                      className="flex-1 bg-gray-100 items-center justify-center py-3 px-4 rounded-xl flex-row"
+                      onPress={() => handleEditSubscription(event.subscription)}
+                    >
+                      <Edit3
+                        color="#6b7280"
+                        size={16}
+                        style={styles.actionIcon}
+                      />
+                      <Text className="text-sm font-medium text-gray-700">
+                        編集
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      className="flex-1 bg-red-50 items-center justify-center py-3 px-4 rounded-xl flex-row"
+                      onPress={() =>
+                        handleDeleteSubscription(event.subscription.id)
+                      }
+                    >
+                      <Trash2
+                        color="#ef4444"
+                        size={16}
+                        style={styles.actionIcon}
+                      />
+                      <Text className="text-sm font-medium text-red-600">
+                        削除
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
               ))}
               {getSelectedDateEvents().length === 0 && (
@@ -548,6 +611,9 @@ const styles = StyleSheet.create({
   },
   badgeIcon: {
     marginRight: 6,
+  },
+  actionIcon: {
+    marginRight: 8,
   },
 })
 
