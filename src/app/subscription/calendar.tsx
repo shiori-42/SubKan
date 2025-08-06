@@ -302,125 +302,141 @@ export function Calendar() {
   return (
     <View className="space-y-4 p-4 bg-orange-50 flex-1">
       <Header />
-      <View className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-lg shadow-lg p-4">
-        <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center">
-            <CalendarIcon
-              className="w-6 h-6 text-pink-500"
-              style={styles.calendarHeaderIcon}
-            />
-            <View className="space-y-0.5">
-              <Text className="text-lg text-gray-800 font-bold">
-                {monthName}
-              </Text>
-              {monthlyTotal > 0 && (
-                <Text className="text-sm text-gray-800">
-                  月間支出予定: ¥{monthlyTotal.toLocaleString()}
+      <View className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+        <View className="p-4 pb-2">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center">
+              <CalendarIcon
+                className="w-6 h-6"
+                color="#ec4899"
+                style={styles.calendarHeaderIcon}
+              />
+              <View className="space-y-0.5">
+                <Text className="text-lg text-gray-800 font-bold">
+                  {monthName}
                 </Text>
-              )}
+                {monthlyTotal > 0 && (
+                  <Text className="text-sm text-gray-800">
+                    月間支出予定: ¥{monthlyTotal.toLocaleString()}
+                  </Text>
+                )}
+              </View>
             </View>
-          </View>
-          <View className="flex-row" style={styles.navButtonContainer}>
-            <TouchableOpacity
-              onPress={() => navigateMonth('prev')}
-              className="p-2.5 bg-white/70 rounded-md border border-gray-200"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-800" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigateMonth('next')}
-              className="p-2.5 bg-white/70 rounded-md border border-gray-200"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-800" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-      <View className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-lg shadow-lg p-4">
-        <View className="flex-row mb-2">
-          {dayNames.map((dayName, index) => (
-            <View
-              key={dayName}
-              className="flex-1 items-center justify-center p-2 rounded-t-lg"
-            >
-              <Text
-                className={`font-medium text-sm ${
-                  index === 0
-                    ? 'text-red-600'
-                    : index === 6
-                      ? 'text-blue-600'
-                      : 'text-gray-600'
-                }`}
-              >
-                {dayName}
-              </Text>
-            </View>
-          ))}
-        </View>
-        <View className="flex-row flex-wrap">
-          {days.map((day, index) => {
-            if (day === null) {
-              return <View key={`empty-${index}`} className="w-[14.28%] h-20" />
-            }
-            const events = getEventsForDate(day)
-            const hasEvents = events.length > 0
-            const dayOfWeek = (firstDayOfMonth + day - 1) % 7
-            const dateObj = new Date(
-              currentDate.getFullYear(),
-              currentDate.getMonth(),
-              day
-            )
-            const isToday =
-              day === new Date().getDate() &&
-              currentDate.getMonth() === new Date().getMonth() &&
-              currentDate.getFullYear() === new Date().getFullYear()
-            const isHolidayDate = isHoliday(dateObj)
-            let dayContainerClass = 'bg-white/50 border-gray-200/80'
-            let dayTextClass = 'text-gray-800'
-            if (isToday) {
-              dayContainerClass = 'bg-orange-100 border-orange-300'
-            } else if (isHolidayDate || dayOfWeek === 0) {
-              dayContainerClass = 'bg-pink-50/80 border-pink-200'
-              dayTextClass = 'text-red-600'
-            } else if (dayOfWeek === 6) {
-              dayContainerClass = 'bg-blue-50/80 border-blue-200'
-              dayTextClass = 'text-blue-600'
-            }
-            if (hasEvents) {
-              dayContainerClass += ' active:bg-blue-100'
-            }
-            return (
+            <View className="flex-row" style={styles.navButtonContainer}>
               <TouchableOpacity
-                key={day}
-                className={`w-[14.28%] h-20 p-1 border rounded-lg ${dayContainerClass}`}
-                onPress={() => handleDateClick(day)}
-                activeOpacity={0.7}
+                onPress={() => navigateMonth('prev')}
+                className="p-2.5 bg-white/70 rounded-l-md border border-gray-200"
               >
-                <Text className={`text-sm font-medium ${dayTextClass}`}>
-                  {day}
-                </Text>
-                <View className="space-y-1 mt-1">
-                  {events.slice(0, 1).map((event, eventIndex) => (
-                    <View
-                      key={eventIndex}
-                      className={`px-1 py-0.5 rounded ${
-                        event.type === 'payment' ? 'bg-blue-500' : 'bg-red-500'
-                      }`}
-                    >
-                      <Text className="text-white text-xs" numberOfLines={1}>
-                        {event.subscription.name}
-                      </Text>
-                    </View>
-                  ))}
-                  {events.length > 1 && (
-                    <Text className="text-xs text-gray-500">
-                      +{events.length - 1}
-                    </Text>
-                  )}
-                </View>
+                <ChevronLeft className="w-5 h-5 text-gray-800" />
               </TouchableOpacity>
-            )
-          })}
+              <TouchableOpacity
+                onPress={() => navigateMonth('next')}
+                className="p-2.5 bg-white/70 rounded-r-md border border-gray-200"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-800" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+        <View className="px-4 pb-4">
+          <View className="flex-row flex-wrap mt-12">
+            {/* 曜日ヘッダー行 */}
+            {dayNames.map((dayName, index) => (
+              <View
+                key={`header-${index}`}
+                className="w-[14.28%] h-8 items-center justify-center p-1"
+              >
+                <View
+                  className={`w-full py-1 rounded-md ${
+                    index === 0
+                      ? 'bg-red-100'
+                      : index === 6
+                        ? 'bg-blue-100'
+                        : 'bg-gray-100'
+                  }`}
+                >
+                  <Text
+                    className={`
+                    text-sm font-semibold text-center
+                    ${index === 0 ? 'text-red-500' : ''}
+                    ${index === 6 ? 'text-blue-500' : ''}
+                    ${index > 0 && index < 6 ? 'text-gray-500' : ''}
+                  `}
+                  >
+                    {dayName}
+                  </Text>
+                </View>
+              </View>
+            ))}
+            {/* 日付セル */}
+            {days.map((day, index) => {
+              if (day === null) {
+                return (
+                  <View key={`empty-${index}`} className="w-[14.28%] h-20" />
+                )
+              }
+              const events = getEventsForDate(day)
+              const hasEvents = events.length > 0
+              const dayOfWeek = (firstDayOfMonth + day - 1) % 7
+              const dateObj = new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                day
+              )
+              const isToday =
+                day === new Date().getDate() &&
+                currentDate.getMonth() === new Date().getMonth() &&
+                currentDate.getFullYear() === new Date().getFullYear()
+              const isHolidayDate = isHoliday(dateObj)
+              let dayContainerClass = 'bg-white border-gray-200'
+              let dayTextClass = 'text-gray-800'
+              if (isToday) {
+                dayContainerClass = 'bg-orange-100 border-orange-300'
+              } else if (isHolidayDate || dayOfWeek === 0) {
+                dayContainerClass = 'bg-pink-50 border-pink-200'
+                dayTextClass = 'text-red-600'
+              } else if (dayOfWeek === 6) {
+                dayContainerClass = 'bg-blue-50 border-blue-200'
+                dayTextClass = 'text-blue-600'
+              }
+              if (hasEvents) {
+                dayContainerClass += ' active:bg-blue-100'
+              }
+              return (
+                <TouchableOpacity
+                  key={day}
+                  className={`w-[14.28%] h-20 p-1 border rounded-lg ${dayContainerClass}`}
+                  onPress={() => handleDateClick(day)}
+                  activeOpacity={0.7}
+                >
+                  <Text className={`text-sm font-medium ${dayTextClass}`}>
+                    {day}
+                  </Text>
+                  <View className="space-y-1 mt-1">
+                    {events.slice(0, 1).map((event, eventIndex) => (
+                      <View
+                        key={eventIndex}
+                        className={`px-1 py-0.5 rounded ${
+                          event.type === 'payment'
+                            ? 'bg-blue-500'
+                            : 'bg-red-500'
+                        }`}
+                      >
+                        <Text className="text-white text-xs" numberOfLines={1}>
+                          {event.subscription.name}
+                        </Text>
+                      </View>
+                    ))}
+                    {events.length > 1 && (
+                      <Text className="text-xs text-gray-500">
+                        +{events.length - 1}
+                      </Text>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
         </View>
       </View>
       <Modal
@@ -430,11 +446,12 @@ export function Calendar() {
         onRequestClose={() => setIsDetailOpen(false)}
       >
         <View className="absolute inset-0 justify-center items-center p-4 bg-black/75 backdrop-blur-sm">
-          <View className="bg-neutral-50 rounded-lg shadow-xl w-full max-w-md max-h-[90%]">
+          <View className="bg-orange-50 rounded-lg shadow-xl w-full max-w-md max-h-[90%]">
             <View className="p-4 border-b border-gray-200 flex-row items-center justify-between">
               <View className="flex-row items-center flex-1">
                 <CalendarIcon
-                  className="w-6 h-6 text-pink-500 shrink-0"
+                  className="w-6 h-6 shrink-0"
+                  color="#ec4899"
                   style={styles.modalHeaderIcon}
                 />
                 <Text
@@ -485,9 +502,10 @@ export function Calendar() {
                     </View>
                     <View className="shrink-0 ml-2">
                       {event.type === 'payment' ? (
-                        <View className="flex-row items-center bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full">
+                        <View className="flex-row items-center bg-blue-100 px-2.5 py-1 rounded-full">
                           <CreditCard
-                            className="w-4 h-4 text-blue-600"
+                            className="w-4 h-4"
+                            color="#2563eb"
                             style={styles.badgeIcon}
                           />
                           <Text className="text-xs font-medium text-blue-800">
@@ -495,9 +513,10 @@ export function Calendar() {
                           </Text>
                         </View>
                       ) : (
-                        <View className="flex-row items-center bg-red-100 text-red-800 px-2.5 py-1 rounded-full">
+                        <View className="flex-row items-center bg-red-100 px-2.5 py-1 rounded-full">
                           <AlertTriangle
-                            className="w-4 h-4 text-red-600"
+                            className="w-4 h-4"
+                            color="#dc2626"
                             style={styles.badgeIcon}
                           />
                           <Text className="text-xs font-medium text-red-800">
