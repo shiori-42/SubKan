@@ -164,18 +164,17 @@ export function PasswordResetForm({
                   error={errors.email}
                   disabled={isLoading}
                 />
-              </View>
 
-              {/* Reset Button */}
-              <Button
-                title="リセットメールを送信"
-                onPress={handleSubmit}
-                variant="primary"
-                size="medium"
-                loading={isLoading}
-                disabled={isLoading}
-                className="mt-2"
-              />
+                {/* Submit Button */}
+                <Button
+                  title="送信"
+                  onPress={handleSubmit}
+                  variant="primary"
+                  size="medium"
+                  loading={isLoading}
+                  disabled={isLoading}
+                />
+              </View>
 
               {/* Back to Login */}
               <View className="items-center pt-4">

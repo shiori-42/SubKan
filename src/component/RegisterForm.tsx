@@ -105,7 +105,7 @@ export function RegisterForm({
                 </View>
               )}
 
-              <View className="gap-6">
+              <View className="gap-4">
                 {/* Email */}
                 <InputField
                   label="メールアドレス"
@@ -184,7 +184,6 @@ export function RegisterForm({
                   size="medium"
                   loading={isLoading}
                   disabled={isLoading}
-                  className="mt-2"
                 />
               </View>
             </View>
@@ -203,7 +202,6 @@ export function RegisterForm({
                   variant="secondary"
                   size="medium"
                   disabled={isLoading}
-                  className="mt-2"
                 />
               </View>
 
