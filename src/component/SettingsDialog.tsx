@@ -9,24 +9,47 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native'
-import { Bell, AlertTriangle, X } from 'lucide-react-native'
+import { Bell, AlertTriangle, X, ChevronDown } from 'lucide-react-native'
+import { Button, Card } from '@/component/common'
+
+interface NotificationSettings {
+  paymentReminder: boolean
+  paymentReminderDays: string
+  cancelReminder: boolean
+}
 
 interface SettingsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
+// Settings dialog component for notification preferences
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
-  const [notificationSettings, setNotificationSettings] = useState({
-    paymentReminder: true,
-    paymentReminderDays: '3',
-    cancelReminder: true,
-  })
+  const [notificationSettings, setNotificationSettings] =
+    useState<NotificationSettings>({
+      paymentReminder: true,
+      paymentReminderDays: '3',
+      cancelReminder: true,
+    })
   const [showTimingPicker, setShowTimingPicker] = useState(false)
 
   const handleSaveNotifications = () => {
     console.log('Notification settings saved:', notificationSettings)
     onOpenChange(false)
+  }
+
+  const timingOptions = [
+    { label: '支払い日の1日前', value: '1' },
+    { label: '支払い日の3日前', value: '3' },
+    { label: '支払い日の1週間前', value: '7' },
+    { label: '支払い日の2週間前', value: '14' },
+  ]
+
+  const getTimingLabel = (value: string) => {
+    return (
+      timingOptions.find((option) => option.value === value)?.label ||
+      '支払い日の3日前'
+    )
   }
 
   return (
@@ -39,7 +62,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       <Pressable onPress={() => onOpenChange(false)} style={styles.overlay}>
         <Pressable style={styles.container}>
           <ScrollView>
-            {/* ヘッダー */}
+            {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerContent}>
                 <Bell size={22} color="#f97316" style={styles.headerIcon} />
@@ -53,12 +76,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               </TouchableOpacity>
             </View>
 
-            {/* コンテンツ */}
+            {/* Content */}
             <View style={styles.content}>
-              {/* 支払いリマインダー */}
-              <View style={styles.section}>
-                <View style={styles.sectionHeader}>
-                  <View style={styles.sectionHeaderContent}>
+              {/* Payment reminder section */}
+              <Card variant="elevated" padding="medium" style={styles.section}>
+                <View style={styles.sectionContent}>
+                  {/* Section header */}
+                  <View style={styles.sectionHeader}>
                     <Bell
                       size={20}
                       color="#3b82f6"
@@ -73,8 +97,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       </Text>
                     </View>
                   </View>
-                </View>
-                <View style={styles.sectionBody}>
+
+                  {/* Setting row */}
                   <View style={styles.settingRow}>
                     <View style={styles.settingContent}>
                       <Text style={styles.settingTitle}>通知を有効にする</Text>
@@ -98,33 +122,35 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       }
                     />
                   </View>
+
+                  {/* Notification timing */}
                   {notificationSettings.paymentReminder && (
-                    <View style={styles.notificationTiming}>
+                    <View style={styles.timingContainer}>
                       <Text style={styles.timingTitle}>通知タイミング</Text>
                       <TouchableOpacity
                         onPress={() => setShowTimingPicker(true)}
-                        style={styles.timingInfo}
+                        style={styles.timingSelector}
                       >
                         <Text style={styles.timingText}>
-                          {notificationSettings.paymentReminderDays === '1' &&
-                            '支払い日の1日前'}
-                          {notificationSettings.paymentReminderDays === '3' &&
-                            '支払い日の3日前'}
-                          {notificationSettings.paymentReminderDays === '7' &&
-                            '支払い日の1週間前'}
-                          {notificationSettings.paymentReminderDays === '14' &&
-                            '支払い日の2週間前'}
+                          {getTimingLabel(
+                            notificationSettings.paymentReminderDays
+                          )}
                         </Text>
+                        <ChevronDown size={20} color="#6b7280" />
                       </TouchableOpacity>
+                      <Text style={styles.timingHint}>
+                        タップして他の選択肢を表示
+                      </Text>
                     </View>
                   )}
                 </View>
-              </View>
+              </Card>
 
-              {/* 解約日リマインダー */}
-              <View style={styles.section}>
-                <View style={styles.sectionHeader}>
-                  <View style={styles.sectionHeaderContent}>
+              {/* Cancel reminder section */}
+              <Card variant="elevated" padding="medium" style={styles.section}>
+                <View style={styles.sectionContent}>
+                  {/* Section header */}
+                  <View style={styles.sectionHeader}>
                     <AlertTriangle
                       size={20}
                       color="#ef4444"
@@ -139,8 +165,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       </Text>
                     </View>
                   </View>
-                </View>
-                <View style={styles.sectionBody}>
+
+                  {/* Setting row */}
                   <View style={styles.settingRow}>
                     <View style={styles.settingContent}>
                       <Text style={styles.settingTitle}>通知を有効にする</Text>
@@ -165,23 +191,23 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     />
                   </View>
                 </View>
-              </View>
+              </Card>
 
-              {/* 保存ボタン */}
+              {/* Save button */}
               <View style={styles.buttonContainer}>
-                <TouchableOpacity
+                <Button
+                  title="設定を保存"
                   onPress={handleSaveNotifications}
-                  style={styles.saveButton}
-                >
-                  <Text style={styles.saveButtonText}>設定を保存</Text>
-                </TouchableOpacity>
+                  variant="primary"
+                  size="large"
+                />
               </View>
             </View>
           </ScrollView>
         </Pressable>
       </Pressable>
 
-      {/* 通知タイミング選択モーダル */}
+      {/* Notification timing picker modal */}
       <Modal
         visible={showTimingPicker}
         transparent={true}
@@ -193,16 +219,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           style={styles.overlay}
         >
           <Pressable style={styles.timingModalContainer}>
+            {/* Modal header */}
             <View style={styles.timingModalHeader}>
               <Text style={styles.timingModalTitle}>通知タイミングを選択</Text>
+              <Text style={styles.timingModalSubtitle}>
+                支払い日の何日前に通知を受け取りますか？
+              </Text>
             </View>
+
+            {/* Modal content */}
             <View style={styles.timingModalContent}>
-              {[
-                { label: '支払い日の1日前', value: '1' },
-                { label: '支払い日の3日前', value: '3' },
-                { label: '支払い日の1週間前', value: '7' },
-                { label: '支払い日の2週間前', value: '14' },
-              ].map((timing) => (
+              {timingOptions.map((timing) => (
                 <TouchableOpacity
                   key={timing.value}
                   onPress={() => {
@@ -230,6 +257,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 </TouchableOpacity>
               ))}
             </View>
+
+            {/* Cancel button */}
             <TouchableOpacity
               onPress={() => setShowTimingPicker(false)}
               style={styles.cancelButton}
@@ -295,24 +324,12 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   section: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-    overflow: 'hidden',
+    marginBottom: 0,
+  },
+  sectionContent: {
+    gap: 16,
   },
   sectionHeader: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  sectionHeaderContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -328,10 +345,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6b7280',
     marginTop: 2,
-  },
-  sectionBody: {
-    padding: 16,
-    gap: 16,
   },
   settingRow: {
     flexDirection: 'row',
@@ -352,7 +365,7 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     marginTop: 4,
   },
-  notificationTiming: {
+  timingContainer: {
     backgroundColor: '#fff7ed',
     borderRadius: 8,
     padding: 12,
@@ -364,40 +377,35 @@ const styles = StyleSheet.create({
     color: '#374151',
     marginBottom: 8,
   },
-  timingInfo: {
+  timingSelector: {
     height: 48,
     backgroundColor: 'white',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#d1d5db',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
   },
   timingText: {
     fontSize: 16,
     color: '#1f2937',
+    flex: 1,
+  },
+  timingHint: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 8,
   },
   buttonContainer: {
     paddingTop: 8,
-  },
-  saveButton: {
-    width: '100%',
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f97316',
-    borderRadius: 8,
-  },
-  saveButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
   },
   timingModalContainer: {
     backgroundColor: 'white',
     borderRadius: 16,
     margin: 32,
-    maxWidth: 400,
+    width: '100%',
+    maxWidth: '100%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -417,6 +425,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#1f2937',
+  },
+  timingModalSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginTop: 8,
   },
   timingModalContent: {
     padding: 8,
