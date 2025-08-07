@@ -12,7 +12,14 @@ import {
   SafeAreaView, // SafeAreaViewをインポート
   StyleSheet,
 } from 'react-native'
-import { BarChart3, Plus, Tag, X, PieChart } from 'lucide-react-native'
+import {
+  BarChart3,
+  Plus,
+  Tag,
+  X,
+  PieChart,
+  AlignLeft,
+} from 'lucide-react-native'
 import { DoughnutChart } from '@/component/DoughnutChart'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
 
@@ -29,8 +36,9 @@ export function AnalyticsView({
   onAddCategory = () => {},
   onRemoveCategory = () => {},
 }: AnalyticsViewProps) {
-  const [newCategory, setNewCategory] = useState('')
-  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false)
+  const [editingCategory, setEditingCategory] = useState('')
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [isEditCategoryOpen, setIsEditCategoryOpen] = useState(false)
   const [showDoughnutChart, setShowDoughnutChart] = useState(false)
 
   const categoryAnalysis = subscriptions.reduce(
@@ -82,12 +90,36 @@ export function AnalyticsView({
     その他: 'bg-orange-100 text-orange-800 border-orange-300',
   }
 
-  const handleAddCategory = () => {
-    if (newCategory.trim() && !categories.includes(newCategory.trim())) {
-      onAddCategory(newCategory.trim())
-      setNewCategory('')
-      setIsAddCategoryOpen(false)
+  const handleEditCategory = () => {
+    if (newCategoryName.trim() && newCategoryName.trim() !== editingCategory) {
+      // カテゴリ名を変更する処理（実際の実装では親コンポーネントに通知）
+      console.log(
+        `カテゴリ名を変更: ${editingCategory} → ${newCategoryName.trim()}`
+      )
+      setNewCategoryName('')
+      setIsEditCategoryOpen(false)
     }
+  }
+
+  const openEditModal = (category: string) => {
+    setEditingCategory(category)
+    setNewCategoryName(category)
+    setIsEditCategoryOpen(true)
+  }
+
+  // カテゴリの色を取得する関数
+  const getCategoryBackgroundColor = (category: string) => {
+    const colorMap = {
+      エンターテイメント: '#fdf2f8', // pink-50
+      ビジネス: '#eff6ff', // blue-50
+      クラウド: '#f5f3ff', // violet-50
+      フィットネス: '#f0fdf4', // green-50
+      食品: '#fffbeb', // amber-50
+      日用品: '#ecfeff', // cyan-50
+      美容: '#fdf2f8', // pink-50
+      その他: '#fff7ed', // orange-50
+    }
+    return colorMap[category as keyof typeof colorMap] || colorMap['その他']
   }
 
   // プログレスバー用のカテゴリ色取得関数
@@ -114,24 +146,20 @@ export function AnalyticsView({
         <View className="bg-white rounded-lg border border-gray-200 shadow-md">
           {/* カテゴリ管理ヘッダー */}
           <View className="p-3 sm:p-6 pb-3 sm:pb-6">
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center">
-                <Tag
-                  className="w-6 h-6"
-                  color="#f97316"
-                  style={styles.headerIcon}
-                />
+            <View className="flex-row items-center">
+              <Tag
+                className="w-6 h-6"
+                color="#f97316"
+                style={styles.headerIcon}
+              />
+              <View>
                 <Text className="text-base sm:text-lg text-gray-800 font-bold">
                   カテゴリ管理
                 </Text>
+                <Text className="text-xs text-gray-500 mt-1">
+                  タップして好きなカテゴリ名に編集できます
+                </Text>
               </View>
-              <TouchableOpacity
-                onPress={() => setIsAddCategoryOpen(true)}
-                className="bg-orange-500 rounded-md py-1.5 px-3 flex-row items-center"
-              >
-                <Plus className="w-4 h-4 mr-1" color="white" />
-                <Text className="text-white text-sm font-medium">追加</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
@@ -146,11 +174,12 @@ export function AnalyticsView({
 
                 return (
                   <View key={category} className="flex-row items-center">
-                    <View
-                      className={`py-1 px-2.5 rounded-full ${categoryColors[category as keyof typeof categoryColors] || categoryColors['その他']}`}
+                    <TouchableOpacity
+                      onPress={() => openEditModal(category)}
+                      className={`py-1 px-2.5 rounded-full ${categoryColors[category as keyof typeof categoryColors] || categoryColors['その他']} active:opacity-70`}
                     >
                       <Text className="text-xs text-gray-700">{category}</Text>
-                    </View>
+                    </TouchableOpacity>
                     {isUserAdded && (
                       <TouchableOpacity
                         className="ml-1 h-5 w-5 p-0 items-center justify-center"
@@ -185,9 +214,14 @@ export function AnalyticsView({
               </View>
               <TouchableOpacity
                 onPress={() => setShowDoughnutChart(!showDoughnutChart)}
-                className="flex-row items-center bg-purple-100 px-3 py-1.5 rounded-md"
+                className="flex-row items-center bg-purple-100 py-1.5 rounded-md"
+                style={styles.toggleButton}
               >
-                <PieChart className="w-4 h-4 mr-1" color="#a855f7" />
+                {showDoughnutChart ? (
+                  <AlignLeft style={styles.toggleIcon} color="#a855f7" />
+                ) : (
+                  <PieChart style={styles.toggleIcon} color="#a855f7" />
+                )}
                 <Text className="text-sm font-medium text-purple-700">
                   {showDoughnutChart ? 'リスト' : 'グラフ'}
                 </Text>
@@ -300,14 +334,70 @@ export function AnalyticsView({
           </View>
         </View>
 
-        {/* Modal (修正なし) */}
+        {/* カテゴリ編集モーダル */}
         <Modal
-          visible={isAddCategoryOpen}
+          visible={isEditCategoryOpen}
           transparent={true}
           animationType="fade"
-          onRequestClose={() => setIsAddCategoryOpen(false)}
+          onRequestClose={() => setIsEditCategoryOpen(false)}
         >
-          {/* ... Modalの中身は省略 ... */}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            className="flex-1"
+          >
+            <Pressable
+              onPress={() => setIsEditCategoryOpen(false)}
+              className="flex-1 justify-center items-center bg-black/60 p-4"
+            >
+              <Pressable className="w-full bg-orange-50 rounded-lg p-4">
+                <View style={styles.modalHeader}>
+                  <Tag style={styles.modalIcon} color="#f97316" />
+                  <Text style={styles.modalTitle}>
+                    カテゴリ名を編集できます
+                  </Text>
+                </View>
+                <View style={styles.modalContent}>
+                  <TextInput
+                    value={newCategoryName}
+                    onChangeText={setNewCategoryName}
+                    placeholder="カテゴリ名を入力..."
+                    placeholderTextColor="#9ca3af"
+                    style={[
+                      styles.modalInput,
+                      {
+                        backgroundColor:
+                          getCategoryBackgroundColor(editingCategory),
+                      },
+                    ]}
+                    onSubmitEditing={handleEditCategory}
+                  />
+                  <View style={styles.modalButtons}>
+                    <TouchableOpacity
+                      onPress={() => setIsEditCategoryOpen(false)}
+                      style={styles.cancelButton}
+                    >
+                      <Text style={styles.cancelButtonText}>キャンセル</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handleEditCategory}
+                      disabled={
+                        !newCategoryName.trim() ||
+                        newCategoryName.trim() === editingCategory
+                      }
+                      style={[
+                        styles.saveButton,
+                        (!newCategoryName.trim() ||
+                          newCategoryName.trim() === editingCategory) &&
+                          styles.disabledButton,
+                      ]}
+                    >
+                      <Text style={styles.saveButtonText}>保存</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Pressable>
+            </Pressable>
+          </KeyboardAvoidingView>
         </Modal>
       </ScrollView>
     </SafeAreaView>
@@ -317,6 +407,77 @@ export function AnalyticsView({
 const styles = StyleSheet.create({
   headerIcon: {
     marginRight: 12,
+  },
+  toggleButton: {
+    minWidth: 80,
+    paddingHorizontal: 12,
+  },
+  toggleIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 4,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    flex: 1,
+  },
+  modalContent: {
+    gap: 16,
+  },
+  modalInput: {
+    backgroundColor: '#f3f4f6',
+    height: 48,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#1f2937',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: '#e5e7eb',
+    height: 48,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelButtonText: {
+    color: '#374151',
+    fontWeight: '500',
+    fontSize: 16,
+  },
+  saveButton: {
+    flex: 1,
+    backgroundColor: '#f97316',
+    height: 48,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  saveButtonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 })
 

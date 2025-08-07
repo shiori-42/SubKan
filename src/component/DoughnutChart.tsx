@@ -94,8 +94,8 @@ export function DoughnutChart({
         className="absolute items-center justify-center"
         style={{ width: size, height: size }}
       >
-        <Text className="text-lg font-bold text-gray-800">支出</Text>
-        <Text className="text-sm text-gray-600">分析</Text>
+        <Text className="text-xl font-bold text-gray-800">支出</Text>
+        <Text className="text-base text-gray-600">分析</Text>
       </View>
 
       {/* シンプルな凡例 */}
