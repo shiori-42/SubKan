@@ -66,4 +66,4 @@ const styles = StyleSheet.create({
   paddingLarge: {
     padding: 48,
   },
-}) 
+})

@@ -7,7 +7,6 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native'
-import { CreditCard } from 'lucide-react-native'
 
 interface ButtonProps {
   title: string
@@ -16,6 +15,8 @@ interface ButtonProps {
   size?: 'small' | 'medium' | 'large'
   loading?: boolean
   disabled?: boolean
+  leftIcon?: React.ReactNode
+  rightIcon?: React.ReactNode
   style?: ViewStyle
   textStyle?: TextStyle
 }
@@ -27,6 +28,8 @@ export function Button({
   size = 'medium',
   loading = false,
   disabled = false,
+  leftIcon,
+  rightIcon,
   style,
   textStyle,
 }: ButtonProps) {
@@ -35,6 +38,7 @@ export function Button({
     styles[variant],
     styles[size],
     disabled && styles.disabled,
+    (leftIcon || rightIcon) && styles.buttonWithIcon,
     style,
   ]
 
@@ -59,7 +63,15 @@ export function Button({
           size="small"
         />
       ) : (
-        <Text style={buttonTextStyle}>{title}</Text>
+        <>
+          {leftIcon && (
+            <Text style={[buttonTextStyle, styles.leftIcon]}>{leftIcon}</Text>
+          )}
+          <Text style={buttonTextStyle}>{title}</Text>
+          {rightIcon && (
+            <Text style={[buttonTextStyle, styles.rightIcon]}>{rightIcon}</Text>
+          )}
+        </>
       )}
     </TouchableOpacity>
   )
@@ -71,6 +83,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
     borderWidth: 1,
+  },
+  buttonWithIcon: {
+    flexDirection: 'row',
   },
   // Variants
   primary: {
@@ -120,4 +135,11 @@ const styles = StyleSheet.create({
   disabledText: {
     opacity: 0.5,
   },
-}) 
+  // Icon styles
+  leftIcon: {
+    marginRight: 8,
+  },
+  rightIcon: {
+    marginLeft: 8,
+  },
+})
