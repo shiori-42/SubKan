@@ -7,10 +7,12 @@ import CalendarView from './subscription/calendar'
 import { AnalyticsView } from './subscription/analytics'
 import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
 import { SettingsDialog } from '@/component/SettingsDialog'
+import { AuthScreen } from '@/component/AuthScreen'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
 import '../../global.css'
 
 const Layout = (): React.JSX.Element => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState('list')
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
@@ -23,6 +25,10 @@ const Layout = (): React.JSX.Element => {
 
   const handleSettingsPress = () => {
     setShowSettingsDialog(true)
+  }
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true)
   }
 
   const handleAddSubscription = (subscriptionData: any) => {
@@ -61,6 +67,11 @@ const Layout = (): React.JSX.Element => {
           />
         )
     }
+  }
+
+  // 認証されていない場合は認証画面を表示
+  if (!isAuthenticated) {
+    return <AuthScreen onAuthSuccess={handleAuthSuccess} />
   }
 
   return (
