@@ -12,7 +12,7 @@ import {
 import { CreditCard, Eye, EyeOff, Mail, Lock, User } from 'lucide-react-native'
 
 interface RegisterFormProps {
-  onRegister: (name: string, email: string, password: string) => Promise<void>
+  onRegister: (email: string, password: string) => Promise<void>
   onSwitchToLogin: () => void
   isLoading?: boolean
 }
@@ -23,7 +23,6 @@ export function RegisterForm({
   isLoading = false,
 }: RegisterFormProps) {
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -37,9 +36,6 @@ export function RegisterForm({
 
     // バリデーション
     const newErrors: Record<string, string> = {}
-    if (!formData.name.trim()) {
-      newErrors.name = 'お名前を入力してください'
-    }
     if (!formData.email) {
       newErrors.email = 'メールアドレスを入力してください'
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -60,7 +56,7 @@ export function RegisterForm({
     }
 
     try {
-      await onRegister(formData.name.trim(), formData.email, formData.password)
+      await onRegister(formData.email, formData.password)
     } catch (error) {
       setErrors({
         general: '登録に失敗しました。しばらく時間をおいて再度お試しください。',
@@ -107,43 +103,6 @@ export function RegisterForm({
               )}
 
               <View style={styles.fieldsContainer}>
-                {/* お名前 */}
-                <View className="space-y-2">
-                  <Text style={styles.fieldLabel}>お名前</Text>
-                  <View className="relative">
-                    <TextInput
-                      value={formData.name}
-                      onChangeText={(text) =>
-                        setFormData({ ...formData, name: text })
-                      }
-                      placeholder=""
-                      placeholderTextColor="#9ca3af"
-                      style={{
-                        paddingLeft: 36,
-                        height: 48,
-                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                        borderRadius: 8,
-                        fontSize: 16,
-                        borderWidth: 1,
-                        borderColor: '#d1d5db',
-                      }}
-                      editable={!isLoading}
-                    />
-                    <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 flex-row items-center"
-                      style={{ gap: 4 }}
-                    >
-                      <User className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                      <Text className="text-sm" style={{ color: '#9ca3af' }}>
-                        山田太郎
-                      </Text>
-                    </View>
-                  </View>
-                  {errors.name && (
-                    <Text className="text-sm text-red-600">{errors.name}</Text>
-                  )}
-                </View>
-
                 {/* メールアドレス */}
                 <View className="space-y-2">
                   <Text style={styles.fieldLabel}>メールアドレス</Text>
@@ -153,12 +112,15 @@ export function RegisterForm({
                       onChangeText={(text) =>
                         setFormData({ ...formData, email: text })
                       }
-                      placeholder=""
+                      placeholder="example@email.com"
                       placeholderTextColor="#9ca3af"
                       keyboardType="email-address"
                       autoCapitalize="none"
+                      autoCorrect={false}
+                      autoComplete="off"
+                      textContentType="none"
                       style={{
-                        paddingLeft: 36,
+                        paddingLeft: 44,
                         height: 48,
                         backgroundColor: 'rgba(255, 255, 255, 0.7)',
                         borderRadius: 8,
@@ -169,13 +131,10 @@ export function RegisterForm({
                       editable={!isLoading}
                     />
                     <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 flex-row items-center"
-                      style={{ gap: 4 }}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                      style={{ pointerEvents: 'none' }}
                     >
                       <Mail className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                      <Text className="text-sm" style={{ color: '#9ca3af' }}>
-                        example@email.com
-                      </Text>
                     </View>
                   </View>
                   {errors.email && (
@@ -192,11 +151,11 @@ export function RegisterForm({
                       onChangeText={(text) =>
                         setFormData({ ...formData, password: text })
                       }
-                      placeholder=""
+                      placeholder="6文字以上で入力"
                       placeholderTextColor="#9ca3af"
                       secureTextEntry={!showPassword}
                       style={{
-                        paddingLeft: 36,
+                        paddingLeft: 44,
                         paddingRight: 48,
                         height: 48,
                         backgroundColor: 'rgba(255, 255, 255, 0.7)',
@@ -208,13 +167,10 @@ export function RegisterForm({
                       editable={!isLoading}
                     />
                     <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 flex-row items-center"
-                      style={{ gap: 4 }}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                      style={{ pointerEvents: 'none' }}
                     >
                       <Lock className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                      <Text className="text-sm" style={{ color: '#9ca3af' }}>
-                        6文字以上で入力
-                      </Text>
                     </View>
                     <TouchableOpacity
                       onPress={() => setShowPassword(!showPassword)}
@@ -247,11 +203,11 @@ export function RegisterForm({
                       onChangeText={(text) =>
                         setFormData({ ...formData, confirmPassword: text })
                       }
-                      placeholder=""
+                      placeholder="パスワードを再入力"
                       placeholderTextColor="#9ca3af"
                       secureTextEntry={!showConfirmPassword}
                       style={{
-                        paddingLeft: 36,
+                        paddingLeft: 44,
                         paddingRight: 48,
                         height: 48,
                         backgroundColor: 'rgba(255, 255, 255, 0.7)',
@@ -263,13 +219,10 @@ export function RegisterForm({
                       editable={!isLoading}
                     />
                     <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 flex-row items-center"
-                      style={{ gap: 4 }}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                      style={{ pointerEvents: 'none' }}
                     >
                       <Lock className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                      <Text className="text-sm" style={{ color: '#9ca3af' }}>
-                        パスワードを再入力
-                      </Text>
                     </View>
                     <TouchableOpacity
                       onPress={() =>

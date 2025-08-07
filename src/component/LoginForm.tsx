@@ -108,12 +108,15 @@ export function LoginForm({
                       onChangeText={(text) =>
                         setFormData({ ...formData, email: text })
                       }
-                      placeholder=""
+                      placeholder="example@email.com"
                       placeholderTextColor="#9ca3af"
                       keyboardType="email-address"
                       autoCapitalize="none"
+                      autoCorrect={false}
+                      autoComplete="off"
+                      textContentType="none"
                       style={{
-                        paddingLeft: 36,
+                        paddingLeft: 44,
                         height: 48,
                         backgroundColor: 'rgba(255, 255, 255, 0.7)',
                         borderRadius: 8,
@@ -124,13 +127,10 @@ export function LoginForm({
                       editable={!isLoading}
                     />
                     <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 flex-row items-center"
-                      style={{ gap: 4 }}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                      style={{ pointerEvents: 'none' }}
                     >
                       <Mail className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                      <Text className="text-sm" style={{ color: '#9ca3af' }}>
-                        example@email.com
-                      </Text>
                     </View>
                   </View>
                   {errors.email && (
@@ -147,11 +147,11 @@ export function LoginForm({
                       onChangeText={(text) =>
                         setFormData({ ...formData, password: text })
                       }
-                      placeholder=""
+                      placeholder="パスワードを入力"
                       placeholderTextColor="#9ca3af"
                       secureTextEntry={!showPassword}
                       style={{
-                        paddingLeft: 36,
+                        paddingLeft: 44,
                         paddingRight: 48,
                         height: 48,
                         backgroundColor: 'rgba(255, 255, 255, 0.7)',
@@ -163,13 +163,10 @@ export function LoginForm({
                       editable={!isLoading}
                     />
                     <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 flex-row items-center"
-                      style={{ gap: 4 }}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                      style={{ pointerEvents: 'none' }}
                     >
                       <Lock className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                      <Text className="text-sm" style={{ color: '#9ca3af' }}>
-                        パスワードを入力
-                      </Text>
                     </View>
                     <TouchableOpacity
                       onPress={() => setShowPassword(!showPassword)}

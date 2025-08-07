@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import { Mail, ArrowLeft } from 'lucide-react-native'
+import { Mail, ArrowLeft, CreditCard } from 'lucide-react-native'
 
 interface PasswordResetFormProps {
   onResetPassword: (email: string) => Promise<void>
@@ -145,12 +145,15 @@ export function PasswordResetForm({
                     <TextInput
                       value={email}
                       onChangeText={setEmail}
-                      placeholder=""
+                      placeholder="登録済みのメールアドレス"
                       placeholderTextColor="#9ca3af"
                       keyboardType="email-address"
                       autoCapitalize="none"
+                      autoCorrect={false}
+                      autoComplete="off"
+                      textContentType="none"
                       style={{
-                        paddingLeft: 36,
+                        paddingLeft: 44,
                         height: 48,
                         backgroundColor: 'rgba(255, 255, 255, 0.7)',
                         borderRadius: 8,
@@ -161,13 +164,10 @@ export function PasswordResetForm({
                       editable={!isLoading}
                     />
                     <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 flex-row items-center"
-                      style={{ gap: 4 }}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
+                      style={{ pointerEvents: 'none' }}
                     >
                       <Mail className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                      <Text className="text-sm" style={{ color: '#9ca3af' }}>
-                        登録済みのメールアドレス
-                      </Text>
                     </View>
                   </View>
                   {errors.email && (
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   formContainer: {
-    gap: 32,
+    gap: 24,
   },
   errorContainer: {
     backgroundColor: '#fef2f2',
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   fieldsContainer: {
-    gap: 24,
+    gap: 16,
   },
   fieldLabel: {
     fontSize: 14,

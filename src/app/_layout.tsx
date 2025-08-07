@@ -8,16 +8,19 @@ import { AnalyticsView } from './subscription/analytics'
 import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
 import { SettingsDialog } from '@/component/SettingsDialog'
 import { AuthScreen } from '@/component/AuthScreen'
+import { LoadingScreen } from '@/component/LoadingScreen'
+import { LoadingProvider, useLoading } from '@/context/LoadingContext'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
 import '../../global.css'
 
-const Layout = (): React.JSX.Element => {
+const LayoutContent = (): React.JSX.Element => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState('list')
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const [subscriptions, setSubscriptions] =
     useState<Subscription[]>(mockSubscriptions)
+  const { isLoading, loadingMessage } = useLoading()
 
   const handleAddPress = () => {
     setShowAddDialog(true)
@@ -69,6 +72,11 @@ const Layout = (): React.JSX.Element => {
     }
   }
 
+  // ローディング中はローディング画面を表示
+  if (isLoading) {
+    return <LoadingScreen message={loadingMessage} />
+  }
+
   // 認証されていない場合は認証画面を表示
   if (!isAuthenticated) {
     return <AuthScreen onAuthSuccess={handleAuthSuccess} />
@@ -117,6 +125,14 @@ const Layout = (): React.JSX.Element => {
         />
       </View>
     </SafeAreaView>
+  )
+}
+
+const Layout = (): React.JSX.Element => {
+  return (
+    <LoadingProvider>
+      <LayoutContent />
+    </LoadingProvider>
   )
 }
 

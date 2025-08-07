@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { LoginForm } from './LoginForm'
 import { RegisterForm } from './RegisterForm'
 import { PasswordResetForm } from './PasswordResetForm'
+import { useLoading } from '@/context/LoadingContext'
 
 interface AuthScreenProps {
   onAuthSuccess: () => void
@@ -11,16 +12,16 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'reset'>(
     'login'
   )
-  const [isLoading, setIsLoading] = useState(false)
+  const { showLoading, hideLoading } = useLoading()
 
   const handleLogin = async (email: string, password: string) => {
-    setIsLoading(true)
+    showLoading('ログイン中...')
     try {
       // ここで実際のログイン処理を実装
       console.log('ログイン処理:', { email, password })
 
       // モック処理（実際のAPI呼び出しに置き換える）
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       // ログイン成功
       onAuthSuccess()
@@ -28,22 +29,18 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       console.error('ログインエラー:', error)
       throw error
     } finally {
-      setIsLoading(false)
+      hideLoading()
     }
   }
 
-  const handleRegister = async (
-    name: string,
-    email: string,
-    password: string
-  ) => {
-    setIsLoading(true)
+  const handleRegister = async (email: string, password: string) => {
+    showLoading('新規登録中...')
     try {
       // ここで実際の新規登録処理を実装
-      console.log('新規登録処理:', { name, email, password })
+      console.log('新規登録処理:', { email, password })
 
       // モック処理（実際のAPI呼び出しに置き換える）
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       // 登録成功後、ログイン状態にする
       onAuthSuccess()
@@ -51,7 +48,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       console.error('新規登録エラー:', error)
       throw error
     } finally {
-      setIsLoading(false)
+      hideLoading()
     }
   }
 
@@ -68,13 +65,13 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   }
 
   const handleResetPassword = async (email: string) => {
-    setIsLoading(true)
+    showLoading('リセットメール送信中...')
     try {
       // ここで実際のパスワードリセット処理を実装
       console.log('パスワードリセット処理:', { email })
 
       // モック処理（実際のAPI呼び出しに置き換える）
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       // リセットメール送信成功
       console.log('リセットメール送信完了')
@@ -82,7 +79,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       console.error('パスワードリセットエラー:', error)
       throw error
     } finally {
-      setIsLoading(false)
+      hideLoading()
     }
   }
 
@@ -93,7 +90,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           onLogin={handleLogin}
           onSwitchToRegister={handleSwitchToRegister}
           onSwitchToReset={handleSwitchToReset}
-          isLoading={isLoading}
+          isLoading={false}
         />
       )
     case 'register':
@@ -101,7 +98,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         <RegisterForm
           onRegister={handleRegister}
           onSwitchToLogin={handleSwitchToLogin}
-          isLoading={isLoading}
+          isLoading={false}
         />
       )
     case 'reset':
@@ -109,7 +106,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         <PasswordResetForm
           onResetPassword={handleResetPassword}
           onBackToLogin={handleSwitchToLogin}
-          isLoading={isLoading}
+          isLoading={false}
         />
       )
     default:
@@ -118,7 +115,7 @@ export function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           onLogin={handleLogin}
           onSwitchToRegister={handleSwitchToRegister}
           onSwitchToReset={handleSwitchToReset}
-          isLoading={isLoading}
+          isLoading={false}
         />
       )
   }
