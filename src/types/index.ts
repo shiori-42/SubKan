@@ -77,7 +77,7 @@ export interface ApiResponse<T> {
 
 // Component props types
 export interface BaseComponentProps {
-  style?: any
+  style?: React.ComponentProps<any>['style']
   children?: React.ReactNode
 }
 
@@ -85,4 +85,4 @@ export interface BaseComponentProps {
 export interface ModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-} 
+}

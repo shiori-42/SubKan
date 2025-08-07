@@ -7,14 +7,14 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native'
-import { LucideIcon } from 'lucide-react-native'
 
 interface InputFieldProps {
-  label?: string
+  label?: React.ReactNode
   value: string
   onChangeText: (text: string) => void
   placeholder?: string
-  icon?: LucideIcon
+  icon?: React.ReactNode
+  rightIcon?: React.ReactNode
   secureTextEntry?: boolean
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad'
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters'
@@ -29,7 +29,8 @@ export function InputField({
   value,
   onChangeText,
   placeholder,
-  icon: Icon,
+  icon,
+  rightIcon,
   secureTextEntry = false,
   keyboardType = 'default',
   autoCapitalize = 'sentences',
@@ -55,15 +56,15 @@ export function InputField({
           textContentType="none"
           style={[
             styles.input,
-            Icon && styles.inputWithIcon,
+            icon && styles.inputWithIcon,
+            rightIcon && styles.inputWithRightIcon,
             inputStyle,
-          ]}
+          ].filter(Boolean)}
           editable={!disabled}
         />
-        {Icon && (
-          <View style={styles.iconContainer}>
-            <Icon size={16} color="#9ca3af" />
-          </View>
+        {icon && <View style={styles.iconContainer}>{icon}</View>}
+        {rightIcon && (
+          <View style={styles.rightIconContainer}>{rightIcon}</View>
         )}
       </View>
       {error && <Text style={styles.errorText}>{error}</Text>}
@@ -96,6 +97,9 @@ const styles = StyleSheet.create({
   inputWithIcon: {
     paddingLeft: 44,
   },
+  inputWithRightIcon: {
+    paddingRight: 44,
+  },
   iconContainer: {
     position: 'absolute',
     left: 12,
@@ -103,9 +107,15 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -8 }],
     pointerEvents: 'none',
   },
+  rightIconContainer: {
+    position: 'absolute',
+    right: 12,
+    top: '50%',
+    transform: [{ translateY: -8 }],
+  },
   errorText: {
     fontSize: 14,
     color: '#dc2626',
     marginTop: 4,
   },
-}) 
+})

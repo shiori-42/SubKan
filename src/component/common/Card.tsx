@@ -6,6 +6,7 @@ interface CardProps {
   variant?: 'default' | 'elevated' | 'outlined'
   padding?: 'small' | 'medium' | 'large'
   style?: ViewStyle
+  className?: string
 }
 
 export function Card({
@@ -13,15 +14,22 @@ export function Card({
   variant = 'default',
   padding = 'medium',
   style,
+  className,
 }: CardProps) {
+  const paddingKey =
+    `padding${padding.charAt(0).toUpperCase() + padding.slice(1)}` as keyof typeof styles
   const cardStyle = [
     styles.base,
     styles[variant],
-    styles[`padding${padding.charAt(0).toUpperCase() + padding.slice(1)}`],
+    styles[paddingKey],
     style,
-  ]
+  ].filter(Boolean)
 
-  return <View style={cardStyle}>{children}</View>
+  return (
+    <View style={cardStyle} className={className}>
+      {children}
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({

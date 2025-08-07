@@ -1,4 +1,4 @@
-// src/component/Header.tsx
+// Header component for the main app navigation
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { CreditCard, Settings, Plus } from 'lucide-react-native'
 
@@ -13,7 +13,7 @@ const Header = ({
 }: HeaderProps): React.JSX.Element => {
   return (
     <View className="flex-row items-end justify-between p-4 h-[104px]">
-      {/* ロゴ部分 */}
+      {/* Logo section */}
       <View className="flex-row items-center">
         <CreditCard color="#f97316" size={28} style={styles.icon} />
         <View>
@@ -24,14 +24,14 @@ const Header = ({
         </View>
       </View>
       <View className="flex-row space-x-2">
-        {/* 設定ボタン */}
+        {/* Settings button */}
         <Pressable
           className="bg-white/70 p-2 rounded-lg mr-2"
           onPress={onSettingsPress}
         >
           <Settings color="#374151" size={20} />
         </Pressable>
-        {/* 追加ボタン */}
+        {/* Add button */}
         <Pressable
           className="bg-orange-400 rounded-lg flex-row items-center"
           style={styles.addButton}

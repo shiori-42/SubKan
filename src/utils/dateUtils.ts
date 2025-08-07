@@ -2,7 +2,10 @@ import { format, addMonths, addWeeks, addDays, isWeekend } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
 // Date formatting
-export const formatDate = (date: Date, formatStr: string = 'yyyy/MM/dd'): string => {
+export const formatDate = (
+  date: Date,
+  formatStr: string = 'yyyy/MM/dd'
+): string => {
   return format(date, formatStr, { locale: ja })
 }
 
@@ -12,6 +15,16 @@ export const formatDateWithDay = (date: Date): string => {
 
 export const formatMonth = (date: Date): string => {
   return format(date, 'yyyy年M月', { locale: ja })
+}
+
+// Days until calculation
+export const getDaysUntil = (date: Date): number => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const targetDate = new Date(date)
+  targetDate.setHours(0, 0, 0, 0)
+  const diffTime = targetDate.getTime() - today.getTime()
+  return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)))
 }
 
 // Next payment date calculation
@@ -69,4 +82,4 @@ export const getWeekRange = (date: Date): { start: Date; end: Date } => {
   const end = new Date(start)
   end.setDate(start.getDate() + 6)
   return { start, end }
-} 
+}

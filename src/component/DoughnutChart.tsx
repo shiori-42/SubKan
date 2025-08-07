@@ -12,6 +12,7 @@ interface DoughnutChartProps {
   strokeWidth?: number
 }
 
+// Color mapping for different subscription categories
 const categoryColors = {
   エンターテイメント: '#ec4899', // pink-500
   ビジネス: '#3b82f6', // blue-500
@@ -23,6 +24,7 @@ const categoryColors = {
   その他: '#f97316', // orange-500
 }
 
+// Doughnut chart component for displaying category spending analysis
 export function DoughnutChart({
   data,
   size = 200,
@@ -32,15 +34,15 @@ export function DoughnutChart({
   const circumference = 2 * Math.PI * radius
   const center = size / 2
 
-  let currentAngle = -90 // 12時方向から開始
+  let currentAngle = -90 // Start from 12 o'clock position
 
   return (
     <View className="items-center">
-      {/* 影付きのコンテナ */}
+      {/* Chart container with shadow */}
       <View className="bg-white rounded-full p-2 shadow-md">
         <Svg width={size} height={size}>
           <G>
-            {/* 背景円 - より柔らかい色 */}
+            {/* Background circle with soft color */}
             <Circle
               cx={center}
               cy={center}
@@ -50,9 +52,9 @@ export function DoughnutChart({
               fill="transparent"
             />
 
-            {/* データ円弧 - 境界を明確にするため小さな隙間を追加 */}
+            {/* Data segments with small gaps between them */}
             {data.map((item, index) => {
-              // 各セグメント間に2度の隙間を作る
+              // Add 2-degree gap between each segment
               const gapAngle = 2
               const totalGaps = data.length
               const totalGapAngle = totalGaps * gapAngle
@@ -89,7 +91,7 @@ export function DoughnutChart({
         </Svg>
       </View>
 
-      {/* 中央のテキスト */}
+      {/* Center text */}
       <View
         className="absolute items-center justify-center"
         style={{ width: size, height: size }}
@@ -98,7 +100,7 @@ export function DoughnutChart({
         <Text className="text-base text-gray-600">分析</Text>
       </View>
 
-      {/* シンプルな凡例 */}
+      {/* Simple legend */}
       <View className="mt-4 space-y-2">
         {data.map((item, index) => {
           const color =

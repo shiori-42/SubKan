@@ -19,6 +19,7 @@ interface ButtonProps {
   rightIcon?: React.ReactNode
   style?: ViewStyle
   textStyle?: TextStyle
+  className?: string
 }
 
 export function Button({
@@ -32,6 +33,7 @@ export function Button({
   rightIcon,
   style,
   textStyle,
+  className,
 }: ButtonProps) {
   const buttonStyle = [
     styles.base,
@@ -40,7 +42,7 @@ export function Button({
     disabled && styles.disabled,
     (leftIcon || rightIcon) && styles.buttonWithIcon,
     style,
-  ]
+  ].filter(Boolean)
 
   const buttonTextStyle = [
     styles.text,
@@ -48,7 +50,7 @@ export function Button({
     styles[`${size}Text`],
     disabled && styles.disabledText,
     textStyle,
-  ]
+  ].filter(Boolean)
 
   return (
     <TouchableOpacity
@@ -56,6 +58,7 @@ export function Button({
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}
+      className={className}
     >
       {loading ? (
         <ActivityIndicator

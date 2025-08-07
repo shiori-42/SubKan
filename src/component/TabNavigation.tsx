@@ -7,6 +7,7 @@ interface TabNavigationProps {
   onTabChange: (tab: string) => void
 }
 
+// Tab navigation component for switching between list, calendar, and analytics views
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   const tabs = [
     {
