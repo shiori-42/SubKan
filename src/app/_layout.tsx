@@ -7,6 +7,8 @@ import CalendarView from './subscription/calendar'
 import { AnalyticsView } from './subscription/analytics'
 import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
 import { SettingsDialog } from '@/component/SettingsDialog'
+import { EmailChangeDialog } from '@/component/EmailChangeDialog'
+import { PasswordChangeDialog } from '@/component/PasswordChangeDialog'
 import { AuthScreen } from '@/component/AuthScreen'
 import { LoadingScreen } from '@/component/LoadingScreen'
 import { LoadingProvider, useLoading } from '@/context/LoadingContext'
@@ -18,8 +20,11 @@ const LayoutContent = (): React.JSX.Element => {
   const [activeTab, setActiveTab] = useState('list')
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
+  const [showEmailChangeDialog, setShowEmailChangeDialog] = useState(false)
+  const [showPasswordChangeDialog, setShowPasswordChangeDialog] = useState(false)
   const [subscriptions, setSubscriptions] =
     useState<Subscription[]>(mockSubscriptions)
+  const [currentEmail, setCurrentEmail] = useState('user@example.com')
   const { isLoading, loadingMessage } = useLoading()
 
   const handleAddPress = () => {
@@ -32,6 +37,22 @@ const LayoutContent = (): React.JSX.Element => {
 
   const handleAuthSuccess = () => {
     setIsAuthenticated(true)
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    setShowSettingsDialog(false)
+  }
+
+  const handleEmailChange = (newEmail: string) => {
+    setCurrentEmail(newEmail)
+    // TODO: Implement actual email change logic
+    console.log('Email changed to:', newEmail)
+  }
+
+  const handlePasswordChange = (currentPassword: string, newPassword: string) => {
+    // TODO: Implement actual password change logic
+    console.log('Password changed:', { currentPassword, newPassword })
   }
 
   const handleAddSubscription = (subscriptionData: any) => {
@@ -122,6 +143,25 @@ const LayoutContent = (): React.JSX.Element => {
         <SettingsDialog
           open={showSettingsDialog}
           onOpenChange={setShowSettingsDialog}
+          onLogout={handleLogout}
+          onEmailChange={() => setShowEmailChangeDialog(true)}
+          onPasswordChange={() => setShowPasswordChangeDialog(true)}
+          currentEmail={currentEmail}
+        />
+
+        {/* メールアドレス変更ダイアログ */}
+        <EmailChangeDialog
+          open={showEmailChangeDialog}
+          onOpenChange={setShowEmailChangeDialog}
+          currentEmail={currentEmail}
+          onEmailChange={handleEmailChange}
+        />
+
+        {/* パスワード変更ダイアログ */}
+        <PasswordChangeDialog
+          open={showPasswordChangeDialog}
+          onOpenChange={setShowPasswordChangeDialog}
+          onPasswordChange={handlePasswordChange}
         />
       </View>
     </SafeAreaView>

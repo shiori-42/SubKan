@@ -9,7 +9,17 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native'
-import { Bell, AlertTriangle, X, ChevronDown } from 'lucide-react-native'
+import {
+  Bell,
+  AlertTriangle,
+  X,
+  ChevronDown,
+  User,
+  LogOut,
+  ChevronRight,
+  Mail,
+  Lock,
+} from 'lucide-react-native'
 import { Button, Card } from '@/component/common'
 
 interface NotificationSettings {
@@ -21,10 +31,21 @@ interface NotificationSettings {
 interface SettingsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onLogout?: () => void
+  onEmailChange?: () => void
+  onPasswordChange?: () => void
+  currentEmail?: string
 }
 
-// Settings dialog component for notification preferences
-export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
+// Settings dialog component for notification preferences and account settings
+export function SettingsDialog({
+  open,
+  onOpenChange,
+  onLogout,
+  onEmailChange,
+  onPasswordChange,
+  currentEmail = 'user@example.com',
+}: SettingsDialogProps) {
   const [notificationSettings, setNotificationSettings] =
     useState<NotificationSettings>({
       paymentReminder: true,
@@ -66,7 +87,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             <View style={styles.header}>
               <View style={styles.headerContent}>
                 <Bell size={22} color="#f97316" style={styles.headerIcon} />
-                <Text style={styles.headerTitle}>通知設定</Text>
+                <Text style={styles.headerTitle}>設定</Text>
               </View>
               <TouchableOpacity
                 onPress={() => onOpenChange(false)}
@@ -190,6 +211,83 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       }
                     />
                   </View>
+                </View>
+              </Card>
+
+              {/* Account settings section */}
+              <Card variant="elevated" padding="medium" style={styles.section}>
+                <View style={styles.sectionContent}>
+                  {/* Section header */}
+                  <View style={styles.sectionHeader}>
+                    <User
+                      size={20}
+                      color="#6b7280"
+                      style={styles.sectionIcon}
+                    />
+                    <View>
+                      <Text style={styles.sectionTitle}>アカウント設定</Text>
+                      <Text style={styles.sectionSubtitle}>
+                        アカウント情報の管理
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Email change */}
+                  <TouchableOpacity
+                    style={styles.settingRow}
+                    onPress={onEmailChange}
+                  >
+                    <View style={styles.settingContent}>
+                      <View style={styles.settingHeader}>
+                        <Mail
+                          size={16}
+                          color="#6b7280"
+                          style={styles.settingIcon}
+                        />
+                        <Text style={styles.settingTitle}>
+                          メールアドレス変更
+                        </Text>
+                      </View>
+                      <Text style={styles.settingDescription}>
+                        現在: {currentEmail}
+                      </Text>
+                    </View>
+                    <ChevronRight size={16} color="#6b7280" />
+                  </TouchableOpacity>
+
+                  {/* Password change */}
+                  <TouchableOpacity
+                    style={styles.settingRow}
+                    onPress={onPasswordChange}
+                  >
+                    <View style={styles.settingContent}>
+                      <View style={styles.settingHeader}>
+                        <Lock
+                          size={16}
+                          color="#6b7280"
+                          style={styles.settingIcon}
+                        />
+                        <Text style={styles.settingTitle}>パスワード変更</Text>
+                      </View>
+                      <Text style={styles.settingDescription}>
+                        セキュリティを向上させましょう
+                      </Text>
+                    </View>
+                    <ChevronRight size={16} color="#6b7280" />
+                  </TouchableOpacity>
+
+                  {/* Logout button */}
+                  <TouchableOpacity
+                    style={styles.logoutButton}
+                    onPress={onLogout}
+                  >
+                    <LogOut
+                      size={16}
+                      color="#ef4444"
+                      style={styles.logoutIcon}
+                    />
+                    <Text style={styles.logoutText}>ログアウト</Text>
+                  </TouchableOpacity>
                 </View>
               </Card>
 
@@ -355,6 +453,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 16,
   },
+  settingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingIcon: {
+    marginRight: 8,
+  },
   settingTitle: {
     fontSize: 14,
     fontWeight: '500',
@@ -364,6 +469,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6b7280',
     marginTop: 4,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    backgroundColor: '#fef2f2',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    marginTop: 8,
+  },
+  logoutIcon: {
+    marginRight: 8,
+  },
+  logoutText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#ef4444',
   },
   timingContainer: {
     backgroundColor: '#fff7ed',
