@@ -84,8 +84,8 @@ export function RegisterForm({
             <View className="items-center mb-8">
               <CreditCard
                 size={48}
+                color="#f97316"
                 style={{
-                  color: '#f97316',
                   marginBottom: 16,
                 }}
               />
@@ -117,7 +117,6 @@ export function RegisterForm({
                   icon={<Mail size={16} color="#9ca3af" />}
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  autoCorrect={false}
                   error={errors.email}
                   disabled={isLoading}
                 />

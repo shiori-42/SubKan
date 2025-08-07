@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import { Mail, ArrowLeft } from 'lucide-react-native'
+import { Mail, ArrowLeft, CreditCard } from 'lucide-react-native'
 import { Button, InputField, Card } from '@/component/common'
 import { validateEmail } from '@/utils'
 
@@ -69,8 +69,8 @@ export function PasswordResetForm({
               <View className="items-center mb-8">
                 <Mail
                   size={48}
+                  color="#f97316"
                   style={{
-                    color: '#f97316',
                     marginBottom: 16,
                   }}
                 />
@@ -127,10 +127,10 @@ export function PasswordResetForm({
           >
             {/* Header */}
             <View className="items-center mb-8">
-              <Mail
+              <CreditCard
                 size={48}
+                color="#f97316"
                 style={{
-                  color: '#f97316',
                   marginBottom: 16,
                 }}
               />
@@ -160,7 +160,6 @@ export function PasswordResetForm({
                   icon={<Mail size={16} color="#9ca3af" />}
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  autoCorrect={false}
                   error={errors.email}
                   disabled={isLoading}
                 />
