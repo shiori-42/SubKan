@@ -2,16 +2,15 @@ import React, { useState } from 'react'
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
   SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import { Mail, ArrowLeft, CreditCard } from 'lucide-react-native'
+import { Mail, ArrowLeft } from 'lucide-react-native'
+import { Button, InputField, Card } from '@/component/common'
+import { validateEmail } from '@/utils'
 
 interface PasswordResetFormProps {
   onResetPassword: (email: string) => Promise<void>
@@ -28,21 +27,15 @@ export function PasswordResetForm({
   const [errors, setErrors] = useState<{ email?: string; general?: string }>({})
   const [isSuccess, setIsSuccess] = useState(false)
 
-  const validateForm = () => {
-    const newErrors: { email?: string } = {}
-
-    if (!email) {
-      newErrors.email = 'メールアドレスを入力してください'
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = '有効なメールアドレスを入力してください'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
   const handleSubmit = async () => {
-    if (!validateForm()) return
+    setErrors({})
+
+    // Validation using utility function
+    const emailError = validateEmail(email)
+    if (emailError) {
+      setErrors({ email: emailError })
+      return
+    }
 
     try {
       await onResetPassword(email)
@@ -54,18 +47,26 @@ export function PasswordResetForm({
 
   if (isSuccess) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView className="flex-1 bg-orange-50">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoidingView}
+          className="flex-1"
         >
           <ScrollView
-            contentContainerStyle={styles.scrollContainer}
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: 'center',
+              padding: 16,
+            }}
             keyboardShouldPersistTaps="handled"
           >
-            <View style={styles.card}>
-              {/* ヘッダー */}
-              <View style={styles.header}>
+            <Card
+              variant="elevated"
+              padding="large"
+              className="w-full max-w-md mx-auto"
+            >
+              {/* Header */}
+              <View className="items-center mb-8">
                 <Mail
                   size={48}
                   style={{
@@ -73,30 +74,32 @@ export function PasswordResetForm({
                     marginBottom: 16,
                   }}
                 />
-                <Text style={styles.title}>パスワードリセット</Text>
-                <Text style={styles.subtitle}>
+                <Text className="text-2xl font-bold text-gray-900 text-center">
+                  パスワードリセット
+                </Text>
+                <Text className="text-base text-gray-600 text-center mt-2">
                   リセットメールを送信しました
                 </Text>
               </View>
 
-              {/* 成功メッセージ */}
-              <View style={styles.successContainer}>
-                <Text style={styles.successText}>
+              {/* Success Message */}
+              <View className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <Text className="text-sm text-green-800 leading-5">
                   {email} にパスワードリセット用のメールを送信しました。
                   {'\n'}
                   メール内のリンクをクリックしてパスワードを再設定してください。
                 </Text>
               </View>
 
-              {/* ログインに戻るボタン */}
-              <TouchableOpacity
+              {/* Back to Login Button */}
+              <Button
+                title="ログインに戻る"
                 onPress={onBackToLogin}
-                style={styles.backButton}
+                variant="secondary"
+                size="medium"
                 disabled={isLoading}
-              >
-                <Text style={styles.backButtonText}>ログインに戻る</Text>
-              </TouchableOpacity>
-            </View>
+              />
+            </Card>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -104,18 +107,26 @@ export function PasswordResetForm({
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-orange-50">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}
+        className="flex-1"
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContainer}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            padding: 16,
+          }}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.card}>
-            {/* ヘッダー */}
-            <View style={styles.header}>
+          <Card
+            variant="elevated"
+            padding="large"
+            className="w-full max-w-md mx-auto"
+          >
+            {/* Header */}
+            <View className="items-center mb-8">
               <Mail
                 size={48}
                 style={{
@@ -123,211 +134,64 @@ export function PasswordResetForm({
                   marginBottom: 16,
                 }}
               />
-              <Text style={styles.title}>パスワードをリセット</Text>
-              <Text style={styles.subtitle}>
+              <Text className="text-2xl font-bold text-gray-900 text-center">
+                パスワードをリセット
+              </Text>
+              <Text className="text-base text-gray-600 text-center mt-2">
                 登録済みのメールアドレスにリセット手順を送ります
               </Text>
             </View>
 
-            {/* フォーム */}
-            <View style={styles.formContainer}>
+            {/* Form */}
+            <View className="gap-6">
               {errors.general && (
-                <View style={styles.errorContainer}>
-                  <Text style={styles.errorText}>{errors.general}</Text>
+                <View className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <Text className="text-sm text-red-600">{errors.general}</Text>
                 </View>
               )}
 
-              <View style={styles.fieldsContainer}>
-                {/* メールアドレス */}
-                <View className="space-y-2">
-                  <Text style={styles.fieldLabel}>メールアドレス</Text>
-                  <View className="relative">
-                    <TextInput
-                      value={email}
-                      onChangeText={setEmail}
-                      placeholder="登録済みのメールアドレス"
-                      placeholderTextColor="#9ca3af"
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      autoComplete="off"
-                      textContentType="none"
-                      style={{
-                        paddingLeft: 44,
-                        height: 48,
-                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                        borderRadius: 8,
-                        fontSize: 16,
-                        borderWidth: 1,
-                        borderColor: '#d1d5db',
-                      }}
-                      editable={!isLoading}
-                    />
-                    <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                      style={{ pointerEvents: 'none' }}
-                    >
-                      <Mail className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                    </View>
-                  </View>
-                  {errors.email && (
-                    <Text className="text-sm text-red-600">{errors.email}</Text>
-                  )}
-                </View>
+              <View className="gap-4">
+                {/* Email */}
+                <InputField
+                  label="メールアドレス"
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="登録済みのメールアドレス"
+                  icon={<Mail size={16} color="#9ca3af" />}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  error={errors.email}
+                  disabled={isLoading}
+                />
               </View>
 
-              {/* リセットボタン */}
-              <TouchableOpacity
+              {/* Reset Button */}
+              <Button
+                title="リセットメールを送信"
                 onPress={handleSubmit}
-                style={styles.resetButton}
+                variant="primary"
+                size="medium"
+                loading={isLoading}
                 disabled={isLoading}
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text style={styles.resetButtonText}>
-                    リセットメールを送信
-                  </Text>
-                )}
-              </TouchableOpacity>
+                className="mt-2"
+              />
 
-              {/* ログインに戻る */}
-              <View style={styles.actionsContainer}>
+              {/* Back to Login */}
+              <View className="items-center pt-4">
                 <TouchableOpacity
                   onPress={onBackToLogin}
-                  style={styles.backToLoginButton}
+                  className="flex-row items-center gap-2"
                   disabled={isLoading}
                 >
-                  <ArrowLeft className="w-4 h-4" style={{ color: '#6b7280' }} />
-                  <Text style={styles.backToLoginText}>ログインに戻る</Text>
+                  <ArrowLeft size={16} color="#6b7280" />
+                  <Text className="text-sm text-gray-600">ログインに戻る</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </Card>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff7ed',
-  },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 16,
-  },
-  card: {
-    padding: 32,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  formContainer: {
-    gap: 24,
-  },
-  errorContainer: {
-    backgroundColor: '#fef2f2',
-    borderWidth: 1,
-    borderColor: '#fecaca',
-    borderRadius: 8,
-    padding: 16,
-  },
-  errorText: {
-    fontSize: 14,
-    color: '#dc2626',
-  },
-  successContainer: {
-    backgroundColor: '#f0fdf4',
-    borderWidth: 1,
-    borderColor: '#bbf7d0',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 24,
-  },
-  successText: {
-    fontSize: 14,
-    color: '#166534',
-    lineHeight: 20,
-  },
-  fieldsContainer: {
-    gap: 16,
-  },
-  fieldLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  resetButton: {
-    width: '100%',
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f97316',
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  resetButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  backButton: {
-    width: '100%',
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-  },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1f2937',
-  },
-  actionsContainer: {
-    alignItems: 'center',
-    paddingTop: 16,
-  },
-  backToLoginButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  backToLoginText: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-})

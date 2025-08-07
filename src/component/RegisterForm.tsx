@@ -3,13 +3,16 @@ import {
   SafeAreaView,
   View,
   Text,
-  TextInput,
   TouchableOpacity,
-  ActivityIndicator,
   ScrollView,
-  StyleSheet,
 } from 'react-native'
-import { CreditCard, Eye, EyeOff, Mail, Lock, User } from 'lucide-react-native'
+import { CreditCard, Eye, EyeOff, Mail, Lock } from 'lucide-react-native'
+import { Button, InputField, Card } from '@/component/common'
+import {
+  validateEmail,
+  validatePassword,
+  validateConfirmPassword,
+} from '@/utils'
 
 interface RegisterFormProps {
   onRegister: (email: string, password: string) => Promise<void>
@@ -34,21 +37,18 @@ export function RegisterForm({
   const handleSubmit = async () => {
     setErrors({})
 
-    // バリデーション
+    // Validation using utility functions
+    const emailError = validateEmail(formData.email)
+    const passwordError = validatePassword(formData.password)
+    const confirmPasswordError = validateConfirmPassword(
+      formData.password,
+      formData.confirmPassword
+    )
+
     const newErrors: Record<string, string> = {}
-    if (!formData.email) {
-      newErrors.email = 'メールアドレスを入力してください'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = '有効なメールアドレスを入力してください'
-    }
-    if (!formData.password) {
-      newErrors.password = 'パスワードを入力してください'
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'パスワードは6文字以上で入力してください'
-    }
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'パスワードが一致しません'
-    }
+    if (emailError) newErrors.email = emailError
+    if (passwordError) newErrors.password = passwordError
+    if (confirmPasswordError) newErrors.confirmPassword = confirmPasswordError
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -75,12 +75,13 @@ export function RegisterForm({
           }}
           keyboardShouldPersistTaps="handled"
         >
-          <View
-            className="w-full max-w-md rounded-2xl mx-auto"
-            style={styles.card}
+          <Card
+            variant="elevated"
+            padding="large"
+            className="w-full max-w-md mx-auto"
           >
-            {/* ヘッダー */}
-            <View style={styles.header}>
+            {/* Header */}
+            <View className="items-center mb-8">
               <CreditCard
                 size={48}
                 style={{
@@ -88,326 +89,138 @@ export function RegisterForm({
                   marginBottom: 16,
                 }}
               />
-              <Text style={styles.title}>サブカンに新規登録</Text>
-              <Text style={styles.subtitle}>
+              <Text className="text-2xl font-bold text-gray-900 text-center">
+                サブカンに新規登録
+              </Text>
+              <Text className="text-base text-gray-600 text-center mt-2">
                 アカウントを登録してサブスク管理を始めましょう
               </Text>
             </View>
 
-            {/* フォーム */}
-            <View style={styles.formContainer}>
+            {/* Form */}
+            <View className="gap-8">
               {errors.general && (
-                <View style={styles.errorContainer}>
-                  <Text style={styles.errorText}>{errors.general}</Text>
+                <View className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <Text className="text-sm text-red-600">{errors.general}</Text>
                 </View>
               )}
 
-              <View style={styles.fieldsContainer}>
-                {/* メールアドレス */}
-                <View className="space-y-2">
-                  <Text style={styles.fieldLabel}>メールアドレス</Text>
-                  <View className="relative">
-                    <TextInput
-                      value={formData.email}
-                      onChangeText={(text) =>
-                        setFormData({ ...formData, email: text })
-                      }
-                      placeholder="example@email.com"
-                      placeholderTextColor="#9ca3af"
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      autoComplete="off"
-                      textContentType="none"
-                      style={{
-                        paddingLeft: 44,
-                        height: 48,
-                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                        borderRadius: 8,
-                        fontSize: 16,
-                        borderWidth: 1,
-                        borderColor: '#d1d5db',
-                      }}
-                      editable={!isLoading}
-                    />
-                    <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                      style={{ pointerEvents: 'none' }}
-                    >
-                      <Mail className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                    </View>
-                  </View>
-                  {errors.email && (
-                    <Text className="text-sm text-red-600">{errors.email}</Text>
-                  )}
-                </View>
+              <View className="gap-6">
+                {/* Email */}
+                <InputField
+                  label="メールアドレス"
+                  value={formData.email}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, email: text })
+                  }
+                  placeholder="example@email.com"
+                  icon={<Mail size={16} color="#9ca3af" />}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  error={errors.email}
+                  disabled={isLoading}
+                />
 
-                {/* パスワード */}
-                <View className="space-y-2">
-                  <Text style={styles.fieldLabel}>パスワード</Text>
-                  <View className="relative">
-                    <TextInput
-                      value={formData.password}
-                      onChangeText={(text) =>
-                        setFormData({ ...formData, password: text })
-                      }
-                      placeholder="6文字以上で入力"
-                      placeholderTextColor="#9ca3af"
-                      secureTextEntry={!showPassword}
-                      style={{
-                        paddingLeft: 44,
-                        paddingRight: 48,
-                        height: 48,
-                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                        borderRadius: 8,
-                        fontSize: 16,
-                        borderWidth: 1,
-                        borderColor: '#d1d5db',
-                      }}
-                      editable={!isLoading}
-                    />
-                    <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                      style={{ pointerEvents: 'none' }}
-                    >
-                      <Lock className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                    </View>
+                {/* Password */}
+                <InputField
+                  label="パスワード"
+                  value={formData.password}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, password: text })
+                  }
+                  placeholder="6文字以上で入力"
+                  icon={<Lock size={16} color="#9ca3af" />}
+                  secureTextEntry={!showPassword}
+                  error={errors.password}
+                  disabled={isLoading}
+                  rightIcon={
                     <TouchableOpacity
                       onPress={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 justify-center items-center"
                       disabled={isLoading}
                     >
                       {showPassword ? (
-                        <EyeOff
-                          className="w-4 h-4"
-                          style={{ color: '#9ca3af' }}
-                        />
+                        <EyeOff size={16} color="#9ca3af" />
                       ) : (
-                        <Eye className="w-4 h-4" style={{ color: '#9ca3af' }} />
+                        <Eye size={16} color="#9ca3af" />
                       )}
                     </TouchableOpacity>
-                  </View>
-                  {errors.password && (
-                    <Text className="text-sm text-red-600">
-                      {errors.password}
-                    </Text>
-                  )}
-                </View>
+                  }
+                />
 
-                {/* パスワード（確認） */}
-                <View className="space-y-2">
-                  <Text style={styles.fieldLabel}>パスワード（確認）</Text>
-                  <View className="relative">
-                    <TextInput
-                      value={formData.confirmPassword}
-                      onChangeText={(text) =>
-                        setFormData({ ...formData, confirmPassword: text })
-                      }
-                      placeholder="パスワードを再入力"
-                      placeholderTextColor="#9ca3af"
-                      secureTextEntry={!showConfirmPassword}
-                      style={{
-                        paddingLeft: 44,
-                        paddingRight: 48,
-                        height: 48,
-                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                        borderRadius: 8,
-                        fontSize: 16,
-                        borderWidth: 1,
-                        borderColor: '#d1d5db',
-                      }}
-                      editable={!isLoading}
-                    />
-                    <View
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2"
-                      style={{ pointerEvents: 'none' }}
-                    >
-                      <Lock className="w-4 h-4" style={{ color: '#9ca3af' }} />
-                    </View>
+                {/* Confirm Password */}
+                <InputField
+                  label="パスワード（確認）"
+                  value={formData.confirmPassword}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, confirmPassword: text })
+                  }
+                  placeholder="パスワードを再入力"
+                  icon={<Lock size={16} color="#9ca3af" />}
+                  secureTextEntry={!showConfirmPassword}
+                  error={errors.confirmPassword}
+                  disabled={isLoading}
+                  rightIcon={
                     <TouchableOpacity
                       onPress={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 justify-center items-center"
                       disabled={isLoading}
                     >
                       {showConfirmPassword ? (
-                        <EyeOff
-                          className="w-4 h-4"
-                          style={{ color: '#9ca3af' }}
-                        />
+                        <EyeOff size={16} color="#9ca3af" />
                       ) : (
-                        <Eye className="w-4 h-4" style={{ color: '#9ca3af' }} />
+                        <Eye size={16} color="#9ca3af" />
                       )}
                     </TouchableOpacity>
-                  </View>
-                  {errors.confirmPassword && (
-                    <Text className="text-sm text-red-600">
-                      {errors.confirmPassword}
-                    </Text>
-                  )}
-                </View>
+                  }
+                />
 
-                {/* 新規登録ボタン */}
-                <TouchableOpacity
+                {/* Register Button */}
+                <Button
+                  title="新規登録"
                   onPress={handleSubmit}
-                  style={styles.registerButton}
+                  variant="primary"
+                  size="medium"
+                  loading={isLoading}
                   disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <ActivityIndicator color="white" />
-                  ) : (
-                    <Text style={styles.registerButtonText}>新規登録</Text>
-                  )}
-                </TouchableOpacity>
+                  className="mt-2"
+                />
               </View>
             </View>
 
-            {/* ログインへの切り替え */}
-            <View style={styles.actionsContainer}>
-              <View style={styles.loginSection}>
-                <View style={styles.loginTextContainer}>
-                  <Text style={styles.loginText}>
+            {/* Actions */}
+            <View className="gap-6 pt-4">
+              <View className="border-t border-gray-200 pt-6">
+                <View className="items-center mb-2">
+                  <Text className="text-sm text-gray-600">
                     すでにアカウントをお持ちの方
                   </Text>
                 </View>
-                <TouchableOpacity
+                <Button
+                  title="ログイン"
                   onPress={onSwitchToLogin}
-                  style={styles.loginButton}
+                  variant="secondary"
+                  size="medium"
                   disabled={isLoading}
-                >
-                  <Text style={styles.loginButtonText}>ログイン</Text>
-                </TouchableOpacity>
+                  className="mt-2"
+                />
               </View>
 
-              {/* 利用規約など */}
-              <View style={styles.termsContainer}>
-                <Text style={styles.termsText}>
+              {/* Terms */}
+              <View className="items-center">
+                <Text className="text-xs text-gray-600 text-center leading-5">
                   新規登録することで、
-                  <Text style={styles.orangeText}>利用規約</Text>
+                  <Text className="text-orange-500">利用規約</Text>
                   および
-                  <Text style={styles.orangeText}>プライバシーポリシー</Text>
+                  <Text className="text-orange-500">プライバシーポリシー</Text>
                   に同意したものとみなします。
                 </Text>
               </View>
             </View>
-          </View>
+          </Card>
         </ScrollView>
       </View>
     </SafeAreaView>
   )
 }
-
-const styles = StyleSheet.create({
-  card: {
-    padding: 32,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  formContainer: {
-    gap: 32,
-  },
-  errorContainer: {
-    backgroundColor: '#fef2f2',
-    borderWidth: 1,
-    borderColor: '#fecaca',
-    borderRadius: 8,
-    padding: 16,
-  },
-  errorText: {
-    fontSize: 14,
-    color: '#dc2626',
-  },
-  fieldsContainer: {
-    gap: 24,
-  },
-  fieldLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  registerButton: {
-    width: '100%',
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f97316',
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  registerButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  actionsContainer: {
-    gap: 24,
-    paddingTop: 16,
-  },
-  loginSection: {
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-    paddingTop: 24,
-  },
-  loginTextContainer: {
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  loginText: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  loginButton: {
-    width: '100%',
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    marginTop: 8,
-  },
-  loginButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1f2937',
-  },
-  termsContainer: {
-    alignItems: 'center',
-  },
-  termsText: {
-    fontSize: 12,
-    color: '#6b7280',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  orangeText: {
-    color: '#f97316',
-  },
-})
