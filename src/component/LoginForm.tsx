@@ -97,7 +97,7 @@ export function LoginForm({
                 </View>
               )}
 
-              <View className="gap-6">
+              <View className="gap-4">
                 {/* Email */}
                 <InputField
                   label="メールアドレス"
@@ -148,7 +148,6 @@ export function LoginForm({
                   size="medium"
                   loading={isLoading}
                   disabled={isLoading}
-                  className="mt-2"
                 />
               </View>
             </View>
@@ -167,8 +166,8 @@ export function LoginForm({
                 </TouchableOpacity>
               </View>
 
-              <View className="border-t border-gray-200 pt-6 items-center">
-                <View className="mb-2">
+              <View className="border-t border-gray-200 pt-6">
+                <View className="items-center mb-2">
                   <Text className="text-sm text-gray-600 text-center">
                     アカウントをお持ちでない方
                   </Text>
@@ -179,7 +178,6 @@ export function LoginForm({
                   variant="secondary"
                   size="medium"
                   disabled={isLoading}
-                  className="mt-2"
                 />
               </View>
             </View>
