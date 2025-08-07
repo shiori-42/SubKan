@@ -6,17 +6,23 @@ import ListView from './subscription/list'
 import CalendarView from './subscription/calendar'
 import { AnalyticsView } from './subscription/analytics'
 import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
+import { SettingsDialog } from '@/component/SettingsDialog'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
 import '../../global.css'
 
 const Layout = (): React.JSX.Element => {
   const [activeTab, setActiveTab] = useState('list')
   const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const [subscriptions, setSubscriptions] =
     useState<Subscription[]>(mockSubscriptions)
 
   const handleAddPress = () => {
     setShowAddDialog(true)
+  }
+
+  const handleSettingsPress = () => {
+    setShowSettingsDialog(true)
   }
 
   const handleAddSubscription = (subscriptionData: any) => {
@@ -61,7 +67,10 @@ const Layout = (): React.JSX.Element => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF7ED' }}>
       <View className="flex-1 p-4">
         {/* ヘッダー */}
-        <Header onAddPress={handleAddPress} />
+        <Header
+          onAddPress={handleAddPress}
+          onSettingsPress={handleSettingsPress}
+        />
 
         {/* タブナビゲーション */}
         <View>
@@ -88,6 +97,12 @@ const Layout = (): React.JSX.Element => {
           ]}
           editingSubscription={null}
           isEditing={false}
+        />
+
+        {/* 設定ダイアログ */}
+        <SettingsDialog
+          open={showSettingsDialog}
+          onOpenChange={setShowSettingsDialog}
         />
       </View>
     </SafeAreaView>

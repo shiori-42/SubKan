@@ -303,6 +303,8 @@ export function AddSubscriptionDialog({
                       if (!value)
                         setFormData({ ...formData, cancelDeadline: undefined })
                     }}
+                    trackColor={{ false: '#d1d5db', true: '#f97316' }}
+                    thumbColor={showCancelDeadline ? '#ffffff' : '#f4f3f4'}
                   />
                   <Text style={styles.switchText}>
                     解約日を設定してリマインドできます
