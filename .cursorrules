@@ -1,0 +1,58 @@
+# My Expo App - Development Rules
+
+## プロジェクト概要
+- React Native + Expo アプリ
+- NativeWind (Tailwind CSS) を使用
+- TypeScript で開発
+- サブスクリプション管理アプリ（リスト、カレンダー、分析画面）
+
+## スタイリング方針
+- **基本**: NativeWind (Tailwind CSS) を使用
+- **例外**: 細かい制御が必要な場合のみ StyleSheet を使用
+  - TextInput の paddingLeft, pointerEvents など
+  - アニメーション制御
+  - 複雑なレイアウト制御
+
+## コンポーネント設計原則
+- 再利用可能なコンポーネントを作成
+- Props で柔軟性を確保
+- TypeScript で型安全性を保つ
+- 一貫したデザインシステムを維持
+
+## ファイル構造
+```
+src/
+├── app/           # 画面コンポーネント
+├── component/     # 再利用可能なコンポーネント
+│   └── common/    # 共通UIコンポーネント
+├── context/       # React Context
+├── data/          # モックデータ
+├── hooks/         # カスタムフック
+├── styles/        # スタイル定義
+├── types/         # TypeScript型定義
+└── utils/         # ユーティリティ関数
+```
+
+## コーディング規約
+- 関数名: camelCase
+- コンポーネント名: PascalCase
+- ファイル名: PascalCase.tsx (コンポーネント), camelCase.ts (ユーティリティ)
+- インポート順序: React → 外部ライブラリ → 内部モジュール
+
+## コミット規約
+- 機能追加: "feat: 機能名"
+- 修正: "fix: 修正内容"
+- リファクタリング: "refactor: 変更内容"
+- スタイル変更: "style: 変更内容"
+
+## 優先事項
+1. ユーザビリティの向上
+2. コードの保守性
+3. パフォーマンス
+4. 一貫したデザイン
+
+## 注意事項
+- 既存の機能を壊さないよう注意
+- 変更前は必ず確認
+- ユーザーの要求を正確に理解してから実装
+- 段階的な改善を心がける
