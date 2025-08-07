@@ -1,7 +1,7 @@
 import { View, Text, Pressable } from 'react-native'
 import { Subscription } from '@/data/mockData'
 import { Edit3, Trash2 } from 'lucide-react-native'
-import { Card, Button } from '@/component/common'
+import { Card, ActionButton } from '@/component/common'
 import { formatDateWithDay, getDaysUntil } from '@/utils'
 
 // Helper function to get category color classes
@@ -86,19 +86,17 @@ const SubscriptionCard = ({
 
       {/* Bottom: Action buttons */}
       <View className="flex-row space-x-4">
-        <Button
+        <ActionButton
           title="編集"
           onPress={() => onEdit(subscription)}
-          variant="secondary"
-          size="small"
-          leftIcon={<Edit3 size={16} color="#6b7280" />}
+          variant="edit"
+          icon={<Edit3 size={16} color="#6b7280" />}
         />
-        <Button
+        <ActionButton
           title="削除"
           onPress={() => onDelete(subscription.id)}
-          variant="secondary"
-          size="small"
-          leftIcon={<Trash2 size={16} color="#ef4444" />}
+          variant="delete"
+          icon={<Trash2 size={16} color="#ef4444" />}
         />
       </View>
     </Card>

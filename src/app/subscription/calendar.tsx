@@ -11,16 +11,15 @@ import {
 import * as holiday_jp from '@holiday-jp/holiday_jp'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
 import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
+import CalendarSubscriptionCard from '@/component/CalendarSubscriptionCard'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
 
 import {
   ChevronLeft,
   ChevronRight,
   Calendar as CalendarIcon,
-  CreditCard,
-  AlertTriangle,
   X,
-  Edit3,
-  Trash2,
   Plus,
 } from 'lucide-react-native'
 
@@ -535,135 +534,13 @@ export function CalendarView({
             </View>
             <ScrollView contentContainerStyle={{ padding: 16 }}>
               {getSelectedDateEvents().map((event, index) => (
-                <View
-                  key={index}
-                  className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200/60"
-                >
-                  <View className="flex-row items-center justify-between mb-3">
-                    <View className="flex-row items-center flex-1 min-w-0">
-                      {/* ▼▼▼▼▼ ここを SubscriptionCard のスタイルに合わせます ▼▼▼▼▼ */}
-                      <View
-                        className="w-10 h-10 rounded-full bg-orange-300 items-center justify-center shrink-0"
-                        style={styles.subscriptionIconContainer}
-                      >
-                        <Text className="text-lg font-bold text-gray-800">
-                          {event.subscription.name.charAt(0)}
-                        </Text>
-                      </View>
-                      {/* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */}
-                      <View className="flex-1">
-                        <Text
-                          className="text-lg font-semibold text-gray-800"
-                          numberOfLines={1}
-                        >
-                          {event.subscription.name}
-                        </Text>
-                        <View
-                          className={`px-2 py-0.5 mt-1 self-start rounded-full ${getCategoryColor(event.subscription.category)}`}
-                        >
-                          <Text className="text-xs text-gray-800">
-                            {event.subscription.category}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                    <View className="shrink-0 ml-2">
-                      {event.type === 'payment' ? (
-                        <View className="flex-row items-center bg-blue-100 px-2.5 py-1 rounded-full">
-                          <CreditCard
-                            className="w-4 h-4"
-                            color="#2563eb"
-                            style={styles.badgeIcon}
-                          />
-                          <Text className="text-xs font-medium text-blue-800">
-                            支払い
-                          </Text>
-                        </View>
-                      ) : (
-                        <View className="flex-row items-center bg-red-100 px-2.5 py-1 rounded-full">
-                          <AlertTriangle
-                            className="w-4 h-4"
-                            color="#dc2626"
-                            style={styles.badgeIcon}
-                          />
-                          <Text className="text-xs font-medium text-red-800">
-                            解約期限
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  </View>
-
-                  {event.type === 'payment' ? (
-                    <View className="space-y-3 mt-2">
-                      <View className="flex-row justify-between items-center">
-                        <Text className="text-sm text-gray-600">
-                          支払い金額
-                        </Text>
-                        <Text className="text-lg font-bold text-gray-800">
-                          ¥{event.subscription.amount.toLocaleString()}
-                        </Text>
-                      </View>
-                      <View className="flex-row justify-between items-center">
-                        <Text className="text-sm text-gray-600">
-                          支払いサイクル
-                        </Text>
-                        <Text className="text-sm font-medium text-gray-800">
-                          {event.subscription.cycle}
-                        </Text>
-                      </View>
-                    </View>
-                  ) : (
-                    <View className="space-y-3 mt-2">
-                      <View className="flex-row justify-between items-center">
-                        <Text className="text-sm text-gray-600">
-                          解約手続き期限
-                        </Text>
-                        <Text className="text-sm font-medium text-red-600">
-                          {event.subscription.cancelDeadline?.toLocaleDateString(
-                            'ja-JP'
-                          )}
-                        </Text>
-                      </View>
-                      <View className="bg-red-50 border border-red-200 rounded-lg p-3">
-                        <Text className="text-sm text-red-700 leading-relaxed">
-                          継続しない場合は、この日までに解約手続きを完了してください。
-                        </Text>
-                      </View>
-                    </View>
-                  )}
-
-                  {/* アクションボタン: 編集・削除 */}
-                  <View className="flex-row space-x-4 mt-4 pt-4 border-t border-gray-200">
-                    <Pressable
-                      className="flex-1 bg-gray-100 items-center justify-center py-3 px-4 rounded-xl flex-row"
-                      onPress={() => handleEditSubscription(event.subscription)}
-                    >
-                      <Edit3
-                        color="#6b7280"
-                        size={16}
-                        style={styles.actionIcon}
-                      />
-                      <Text className="text-sm font-medium text-gray-700">
-                        編集
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      className="flex-1 bg-red-50 items-center justify-center py-3 px-4 rounded-xl flex-row"
-                      onPress={() =>
-                        handleDeleteSubscription(event.subscription.id)
-                      }
-                    >
-                      <Trash2
-                        color="#ef4444"
-                        size={16}
-                        style={styles.actionIcon}
-                      />
-                      <Text className="text-sm font-medium text-red-600">
-                        削除
-                      </Text>
-                    </Pressable>
-                  </View>
+                <View key={index} className="mb-4">
+                  <CalendarSubscriptionCard
+                    subscription={event.subscription}
+                    onEdit={handleEditSubscription}
+                    onDelete={handleDeleteSubscription}
+                    paymentTagType={event.type}
+                  />
                 </View>
               ))}
               {getSelectedDateEvents().length === 0 && (
@@ -716,9 +593,6 @@ const styles = StyleSheet.create({
   },
   badgeIcon: {
     marginRight: 6,
-  },
-  actionIcon: {
-    marginRight: 8,
   },
 })
 
