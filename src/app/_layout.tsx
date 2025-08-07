@@ -5,21 +5,55 @@ import Header from '@/component/Header'
 import ListView from './subscription/list'
 import CalendarView from './subscription/calendar'
 import { AnalyticsView } from './subscription/analytics'
+import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
+import { mockSubscriptions, Subscription } from '@/data/mockData'
 import '../../global.css'
 
 const Layout = (): React.JSX.Element => {
   const [activeTab, setActiveTab] = useState('list')
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [subscriptions, setSubscriptions] =
+    useState<Subscription[]>(mockSubscriptions)
+
+  const handleAddPress = () => {
+    setShowAddDialog(true)
+  }
+
+  const handleAddSubscription = (subscriptionData: any) => {
+    const newSubscription: Subscription = {
+      ...subscriptionData,
+      id: Date.now().toString(),
+      color: 'bg-gray-100 text-gray-800',
+    }
+    setSubscriptions((prev) => [...prev, newSubscription])
+    setShowAddDialog(false)
+  }
 
   const renderContent = () => {
     switch (activeTab) {
       case 'list':
-        return <ListView />
+        return (
+          <ListView
+            subscriptions={subscriptions}
+            setSubscriptions={setSubscriptions}
+          />
+        )
       case 'calendar':
-        return <CalendarView />
+        return (
+          <CalendarView
+            subscriptions={subscriptions}
+            setSubscriptions={setSubscriptions}
+          />
+        )
       case 'analytics':
-        return <AnalyticsView />
+        return <AnalyticsView subscriptions={subscriptions} />
       default:
-        return <ListView />
+        return (
+          <ListView
+            subscriptions={subscriptions}
+            setSubscriptions={setSubscriptions}
+          />
+        )
     }
   }
 
@@ -27,7 +61,7 @@ const Layout = (): React.JSX.Element => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF7ED' }}>
       <View className="flex-1 p-4">
         {/* ヘッダー */}
-        <Header />
+        <Header onAddPress={handleAddPress} />
 
         {/* タブナビゲーション */}
         <View>
@@ -36,6 +70,25 @@ const Layout = (): React.JSX.Element => {
 
         {/* コンテンツ */}
         <View className="flex-1">{renderContent()}</View>
+
+        {/* グローバルなサブスクリプション追加ダイアログ */}
+        <AddSubscriptionDialog
+          open={showAddDialog}
+          onOpenChange={setShowAddDialog}
+          onAdd={handleAddSubscription}
+          categories={[
+            'エンターテイメント',
+            'ビジネス',
+            'クラウド',
+            'フィットネス',
+            '食品',
+            '日用品',
+            '美容',
+            'その他',
+          ]}
+          editingSubscription={null}
+          isEditing={false}
+        />
       </View>
     </SafeAreaView>
   )

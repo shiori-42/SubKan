@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import * as holiday_jp from '@holiday-jp/holiday_jp'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
+import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
 
 import {
   ChevronLeft,
@@ -20,6 +21,7 @@ import {
   X,
   Edit3,
   Trash2,
+  Plus,
 } from 'lucide-react-native'
 
 interface CalendarEvent {
@@ -27,14 +29,32 @@ interface CalendarEvent {
   type: 'payment' | 'cancel'
 }
 
-export function CalendarView() {
-  const [subscriptions, setSubscriptions] =
+interface CalendarViewProps {
+  subscriptions?: Subscription[]
+  setSubscriptions?: React.Dispatch<React.SetStateAction<Subscription[]>>
+}
+
+export function CalendarView({
+  subscriptions: propSubscriptions,
+  setSubscriptions: propSetSubscriptions,
+}: CalendarViewProps) {
+  const [localSubscriptions, setLocalSubscriptions] =
     useState<Subscription[]>(mockSubscriptions)
+
+  const subscriptions = propSubscriptions || localSubscriptions
+  const setSubscriptions = propSetSubscriptions || setLocalSubscriptions
+
   const [currentDate, setCurrentDate] = useState(
     new Date('2025-08-05T12:00:00')
   )
   const [selectedDate, setSelectedDate] = useState<number | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
+
+  // ダイアログの状態管理
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [editingSubscription, setEditingSubscription] =
+    useState<Subscription | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
   // 祝日判定ロジック: 日本の祝日ライブラリを使用して祝日かどうかを判定
   const isHoliday = (date: Date): boolean => {
@@ -296,9 +316,38 @@ export function CalendarView() {
    * @param subscription 編集対象のサブスクリプション
    */
   const handleEditSubscription = (subscription: Subscription) => {
-    // TODO: 編集画面への遷移処理を実装
-    console.log('編集:', subscription.name)
-    // 例: navigation.navigate('EditSubscription', { subscription })
+    setEditingSubscription(subscription)
+    setIsEditing(true)
+    setIsAddDialogOpen(true)
+    setIsDetailOpen(false)
+  }
+
+  const handleAdd = () => {
+    setEditingSubscription(null)
+    setIsEditing(false)
+    setIsAddDialogOpen(true)
+  }
+
+  const handleAddSubscription = (subscriptionData: any) => {
+    if (isEditing && editingSubscription) {
+      // 編集モード
+      setSubscriptions((prev) =>
+        prev.map((sub) =>
+          sub.id === editingSubscription.id
+            ? { ...subscriptionData, id: sub.id, color: sub.color }
+            : sub
+        )
+      )
+    } else {
+      // 新規追加モード
+      const newSubscription: Subscription = {
+        ...subscriptionData,
+        id: Date.now().toString(),
+        color: 'bg-gray-100 text-gray-800',
+      }
+      setSubscriptions((prev) => [...prev, newSubscription])
+    }
+    setIsAddDialogOpen(false)
   }
 
   /**
@@ -629,6 +678,25 @@ export function CalendarView() {
           </View>
         </View>
       </Modal>
+
+      {/* サブスクリプション追加・編集ダイアログ */}
+      <AddSubscriptionDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onAdd={handleAddSubscription}
+        categories={[
+          'エンターテイメント',
+          'ビジネス',
+          'クラウド',
+          'フィットネス',
+          '食品',
+          '日用品',
+          '美容',
+          'その他',
+        ]}
+        editingSubscription={editingSubscription}
+        isEditing={isEditing}
+      />
     </View>
   )
 }

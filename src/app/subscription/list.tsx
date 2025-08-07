@@ -1,20 +1,38 @@
 // src/app/subscription/list.tsx
-import { View, Text, FlatList } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SummaryCard from '@/component/SummaryCard'
 import SubscriptionCard from '@/component/SubscriptionCard'
-import { CreditCard, Calendar, BarChart3 } from 'lucide-react-native'
+import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
+import { CreditCard, Calendar, BarChart3, Plus } from 'lucide-react-native'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
+
+interface ListViewProps {
+  subscriptions?: Subscription[]
+  setSubscriptions?: React.Dispatch<React.SetStateAction<Subscription[]>>
+}
 
 /**
  * サブスクリプション一覧画面のメインコンポーネント
  * サマリーカード、サブスクリプション一覧、編集・削除機能を含む
  */
-const ListView = (): React.JSX.Element => {
-  // サブスクリプションデータの状態管理（初期値はmockData）
-  const [subscriptions, setSubscriptions] =
+const ListView = ({
+  subscriptions: propSubscriptions,
+  setSubscriptions: propSetSubscriptions,
+}: ListViewProps): React.JSX.Element => {
+  // サブスクリプションデータの状態管理
+  const [localSubscriptions, setLocalSubscriptions] =
     useState<Subscription[]>(mockSubscriptions)
+
+  const subscriptions = propSubscriptions || localSubscriptions
+  const setSubscriptions = propSetSubscriptions || setLocalSubscriptions
+
+  // ダイアログの状態管理
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [editingSubscription, setEditingSubscription] =
+    useState<Subscription | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
   // ===== サブスクリプション集計ロジック =====
 
@@ -58,8 +76,37 @@ const ListView = (): React.JSX.Element => {
   // ===== アクション関数 =====
 
   const handleEdit = (subscription: Subscription) => {
-    console.log('Edit:', subscription.name)
-    // TODO: 編集ダイアログを開く処理を実装
+    setEditingSubscription(subscription)
+    setIsEditing(true)
+    setIsAddDialogOpen(true)
+  }
+
+  const handleAdd = () => {
+    setEditingSubscription(null)
+    setIsEditing(false)
+    setIsAddDialogOpen(true)
+  }
+
+  const handleAddSubscription = (subscriptionData: any) => {
+    if (isEditing && editingSubscription) {
+      // 編集モード
+      setSubscriptions((prev) =>
+        prev.map((sub) =>
+          sub.id === editingSubscription.id
+            ? { ...subscriptionData, id: sub.id, color: sub.color }
+            : sub
+        )
+      )
+    } else {
+      // 新規追加モード
+      const newSubscription: Subscription = {
+        ...subscriptionData,
+        id: Date.now().toString(),
+        color: 'bg-gray-100 text-gray-800',
+      }
+      setSubscriptions((prev) => [...prev, newSubscription])
+    }
+    setIsAddDialogOpen(false)
   }
 
   const deleteSubscription = (id: string) => {
@@ -125,6 +172,25 @@ const ListView = (): React.JSX.Element => {
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
         />
       </View>
+
+      {/* サブスクリプション追加・編集ダイアログ */}
+      <AddSubscriptionDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onAdd={handleAddSubscription}
+        categories={[
+          'エンターテイメント',
+          'ビジネス',
+          'クラウド',
+          'フィットネス',
+          '食品',
+          '日用品',
+          '美容',
+          'その他',
+        ]}
+        editingSubscription={editingSubscription}
+        isEditing={isEditing}
+      />
     </View>
   )
 }

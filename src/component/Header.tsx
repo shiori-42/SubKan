@@ -2,7 +2,15 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { CreditCard, Settings, Plus } from 'lucide-react-native'
 
-const Header = (): React.JSX.Element => {
+interface HeaderProps {
+  onAddPress?: () => void
+  onSettingsPress?: () => void
+}
+
+const Header = ({
+  onAddPress,
+  onSettingsPress,
+}: HeaderProps): React.JSX.Element => {
   return (
     <View className="flex-row items-end justify-between p-4 h-[104px]">
       {/* ロゴ部分 */}
@@ -17,13 +25,22 @@ const Header = (): React.JSX.Element => {
       </View>
       <View className="flex-row space-x-2">
         {/* 設定ボタン */}
-        <Pressable className="bg-white/70 p-2 rounded-lg mr-2">
+        <Pressable
+          className="bg-white/70 p-2 rounded-lg mr-2"
+          onPress={onSettingsPress}
+        >
           <Settings color="#374151" size={20} />
         </Pressable>
         {/* 追加ボタン */}
-        <Pressable className="bg-orange-400 p-2 rounded-lg flex-row items-center">
+        <Pressable
+          className="bg-orange-400 rounded-lg flex-row items-center"
+          style={styles.addButton}
+          onPress={onAddPress}
+        >
           <Plus color="white" size={20} style={styles.plusIcon} />
-          <Text className="text-white font-semibold">追加</Text>
+          <Text className="text-white" style={styles.addButtonText}>
+            追加
+          </Text>
         </Pressable>
       </View>
     </View>
@@ -36,6 +53,15 @@ const styles = StyleSheet.create({
   },
   plusIcon: {
     marginRight: 4,
+  },
+  addButton: {
+    minWidth: 80,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  addButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 })
 
