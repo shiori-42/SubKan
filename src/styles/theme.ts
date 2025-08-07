@@ -28,7 +28,7 @@ export const colors = {
   business: '#3b82f6',
   cloud: '#06b6d4',
   fitness: '#10b981',
-  food: '#f59e0b',
+  food: '#eab308', // Changed to yellow
   daily: '#f97316',
   beauty: '#ec4899',
   other: '#6b7280',
