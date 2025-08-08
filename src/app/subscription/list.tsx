@@ -5,8 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import SummaryCard from '@/component/SummaryCard'
 import SubscriptionCard from '@/component/SubscriptionCard'
 import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
+import UpgradeDialog from '@/component/UpgradeDialog'
 import { CreditCard, Calendar, BarChart3, Plus } from 'lucide-react-native'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
+import { useBilling } from '@/hooks/useBilling'
 
 interface ListViewProps {
   subscriptions?: Subscription[]
@@ -33,6 +35,15 @@ const ListView = ({
   const [editingSubscription, setEditingSubscription] =
     useState<Subscription | null>(null)
   const [isEditing, setIsEditing] = useState(false)
+
+  // 課金状態管理
+  const {
+    billingInfo,
+    isUpgradeDialogOpen,
+    setIsUpgradeDialogOpen,
+    handleUpgrade,
+    handleCancelSubscription,
+  } = useBilling()
 
   // ===== サブスクリプション集計ロジック =====
 
@@ -82,6 +93,12 @@ const ListView = ({
   }
 
   const handleAdd = () => {
+    // 有料プランでない場合は課金を促す
+    if (!billingInfo.isPremium && billingInfo.freeTrialUsed) {
+      setIsUpgradeDialogOpen(true)
+      return
+    }
+
     setEditingSubscription(null)
     setIsEditing(false)
     setIsAddDialogOpen(true)
@@ -158,20 +175,47 @@ const ListView = ({
             )}
           </View>
         </View>
-        <FlatList
-          data={sortedSubscriptions}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <SubscriptionCard
-              subscription={item}
-              onEdit={handleEdit}
-              onDelete={deleteSubscription}
-            />
-          )}
-          ItemSeparatorComponent={() => <View className="h-4" />}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
-        />
+        {!billingInfo.isPremium &&
+        billingInfo.freeTrialUsed &&
+        subscriptions.length === 0 ? (
+          <View className="flex-1 justify-center items-center p-8">
+            <Text className="text-lg text-gray-600 text-center mb-4">
+              有料に移行して
+            </Text>
+            <Text className="text-lg text-gray-600 text-center mb-6">
+              サブスクリプション管理を始めましょう
+            </Text>
+            <TouchableOpacity
+              onPress={() => setIsUpgradeDialogOpen(true)}
+              className="bg-orange-500 py-3 px-6 rounded-lg"
+            >
+              <Text className="text-white font-medium text-lg">有料に移行</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={sortedSubscriptions}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <SubscriptionCard
+                subscription={item}
+                onEdit={handleEdit}
+                onDelete={deleteSubscription}
+              />
+            )}
+            ItemSeparatorComponent={() => <View className="h-4" />}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+          />
+        )}
       </View>
+
+      {/* フッター追加ボタン */}
+      <TouchableOpacity
+        onPress={handleAdd}
+        className="absolute bottom-6 right-6 bg-orange-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+      >
+        <Plus size={24} color="white" />
+      </TouchableOpacity>
 
       {/* サブスクリプション追加・編集ダイアログ */}
       <AddSubscriptionDialog
@@ -190,6 +234,14 @@ const ListView = ({
         ]}
         editingSubscription={editingSubscription}
         isEditing={isEditing}
+      />
+
+      {/* アップグレードダイアログ */}
+      <UpgradeDialog
+        open={isUpgradeDialogOpen}
+        onOpenChange={setIsUpgradeDialogOpen}
+        onUpgrade={handleUpgrade}
+        monthlyFee={billingInfo.monthlyFee}
       />
     </View>
   )

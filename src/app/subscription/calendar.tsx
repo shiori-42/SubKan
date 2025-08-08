@@ -556,6 +556,14 @@ export function CalendarView({
         </View>
       </Modal>
 
+      {/* フローティング追加ボタン */}
+      <TouchableOpacity
+        onPress={handleAdd}
+        className="absolute bottom-6 right-6 bg-orange-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+      >
+        <Plus size={24} color="white" />
+      </TouchableOpacity>
+
       {/* サブスクリプション追加・編集ダイアログ */}
       <AddSubscriptionDialog
         open={isAddDialogOpen}
