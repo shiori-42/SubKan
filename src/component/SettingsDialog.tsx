@@ -8,6 +8,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  TextInput,
 } from 'react-native'
 import {
   Bell,
@@ -19,6 +20,8 @@ import {
   ChevronRight,
   Mail,
   Lock,
+  Settings,
+  Trash2,
 } from 'lucide-react-native'
 import { Button, Card } from '@/component/common'
 
@@ -34,6 +37,7 @@ interface SettingsDialogProps {
   onLogout?: () => void
   onEmailChange?: () => void
   onPasswordChange?: () => void
+  onAccountDeletion?: () => void
   currentEmail?: string
 }
 
@@ -44,6 +48,7 @@ export function SettingsDialog({
   onLogout,
   onEmailChange,
   onPasswordChange,
+  onAccountDeletion,
   currentEmail = 'user@example.com',
 }: SettingsDialogProps) {
   const [notificationSettings, setNotificationSettings] =
@@ -53,10 +58,21 @@ export function SettingsDialog({
       cancelReminder: true,
     })
   const [showTimingPicker, setShowTimingPicker] = useState(false)
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [deleteConfirmationText, setDeleteConfirmationText] = useState('')
 
   const handleSaveNotifications = () => {
     console.log('Notification settings saved:', notificationSettings)
     onOpenChange(false)
+  }
+
+  const handleAccountDeletion = () => {
+    console.log('Account deletion requested')
+    // TODO: Implement actual account deletion logic
+    setShowDeleteConfirmation(false)
+    setDeleteConfirmationText('')
+    onOpenChange(false)
+    onAccountDeletion?.()
   }
 
   const timingOptions = [
@@ -86,7 +102,7 @@ export function SettingsDialog({
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerContent}>
-                <Bell size={22} color="#f97316" style={styles.headerIcon} />
+                <Settings size={22} color="#6b7280" style={styles.headerIcon} />
                 <Text style={styles.headerTitle}>設定</Text>
               </View>
               <TouchableOpacity
@@ -99,30 +115,30 @@ export function SettingsDialog({
 
             {/* Content */}
             <View style={styles.content}>
-              {/* Payment reminder section */}
+              {/* Notification settings section */}
               <Card variant="elevated" padding="medium" style={styles.section}>
                 <View style={styles.sectionContent}>
                   {/* Section header */}
                   <View style={styles.sectionHeader}>
                     <Bell
                       size={20}
-                      color="#3b82f6"
+                      color="#f97316"
                       style={styles.sectionIcon}
                     />
                     <View>
-                      <Text style={styles.sectionTitle}>
-                        支払いリマインダー
-                      </Text>
+                      <Text style={styles.sectionTitle}>通知設定</Text>
                       <Text style={styles.sectionSubtitle}>
-                        支払い予定日の前に通知を受け取ります
+                        支払いと解約のリマインダーを管理
                       </Text>
                     </View>
                   </View>
 
-                  {/* Setting row */}
+                  {/* Payment reminder setting */}
                   <View style={styles.settingRow}>
                     <View style={styles.settingContent}>
-                      <Text style={styles.settingTitle}>通知を有効にする</Text>
+                      <Text style={styles.settingTitle}>
+                        支払いリマインダー
+                      </Text>
                       <Text style={styles.settingDescription}>
                         例：「Netflix の支払いが3日後です」
                       </Text>
@@ -164,33 +180,13 @@ export function SettingsDialog({
                       </Text>
                     </View>
                   )}
-                </View>
-              </Card>
 
-              {/* Cancel reminder section */}
-              <Card variant="elevated" padding="medium" style={styles.section}>
-                <View style={styles.sectionContent}>
-                  {/* Section header */}
-                  <View style={styles.sectionHeader}>
-                    <AlertTriangle
-                      size={20}
-                      color="#ef4444"
-                      style={styles.sectionIcon}
-                    />
-                    <View>
-                      <Text style={styles.sectionTitle}>
-                        解約日リマインダー
-                      </Text>
-                      <Text style={styles.sectionSubtitle}>
-                        解約日当日に通知を受け取ります
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Setting row */}
+                  {/* Cancel reminder setting */}
                   <View style={styles.settingRow}>
                     <View style={styles.settingContent}>
-                      <Text style={styles.settingTitle}>通知を有効にする</Text>
+                      <Text style={styles.settingTitle}>
+                        解約日リマインダー
+                      </Text>
                       <Text style={styles.settingDescription}>
                         例：「今日は Spotify の解約日です」
                       </Text>
@@ -232,10 +228,32 @@ export function SettingsDialog({
                     </View>
                   </View>
 
+                  {/* Current email display */}
+                  <View style={styles.settingRow}>
+                    <View style={styles.settingContent}>
+                      <View style={styles.settingHeader}>
+                        <Mail
+                          size={16}
+                          color="#6b7280"
+                          style={styles.settingIcon}
+                        />
+                        <Text style={styles.settingTitle}>
+                          現在のメールアドレス
+                        </Text>
+                      </View>
+                      <Text style={styles.settingDescription}>
+                        {currentEmail}
+                      </Text>
+                    </View>
+                  </View>
+
                   {/* Email change */}
                   <TouchableOpacity
                     style={styles.settingRow}
-                    onPress={onEmailChange}
+                    onPress={() => {
+                      console.log('Email change button pressed')
+                      onEmailChange?.()
+                    }}
                   >
                     <View style={styles.settingContent}>
                       <View style={styles.settingHeader}>
@@ -248,9 +266,6 @@ export function SettingsDialog({
                           メールアドレス変更
                         </Text>
                       </View>
-                      <Text style={styles.settingDescription}>
-                        現在: {currentEmail}
-                      </Text>
                     </View>
                     <ChevronRight size={16} color="#6b7280" />
                   </TouchableOpacity>
@@ -258,7 +273,10 @@ export function SettingsDialog({
                   {/* Password change */}
                   <TouchableOpacity
                     style={styles.settingRow}
-                    onPress={onPasswordChange}
+                    onPress={() => {
+                      console.log('Password change button pressed')
+                      onPasswordChange?.()
+                    }}
                   >
                     <View style={styles.settingContent}>
                       <View style={styles.settingHeader}>
@@ -269,9 +287,6 @@ export function SettingsDialog({
                         />
                         <Text style={styles.settingTitle}>パスワード変更</Text>
                       </View>
-                      <Text style={styles.settingDescription}>
-                        セキュリティを向上させましょう
-                      </Text>
                     </View>
                     <ChevronRight size={16} color="#6b7280" />
                   </TouchableOpacity>
@@ -283,13 +298,105 @@ export function SettingsDialog({
                   >
                     <LogOut
                       size={16}
-                      color="#ef4444"
+                      color="#6b7280"
                       style={styles.logoutIcon}
                     />
                     <Text style={styles.logoutText}>ログアウト</Text>
                   </TouchableOpacity>
+
+                  {/* Account deletion button */}
+                  <TouchableOpacity
+                    style={styles.deleteAccountButton}
+                    onPress={() => setShowDeleteConfirmation(true)}
+                  >
+                    <Trash2
+                      size={16}
+                      color="#ef4444"
+                      style={styles.deleteIcon}
+                    />
+                    <Text style={styles.deleteAccountText}>アカウント削除</Text>
+                  </TouchableOpacity>
                 </View>
               </Card>
+
+              {/* Account deletion confirmation modal */}
+              <Modal
+                visible={showDeleteConfirmation}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => {
+                  setShowDeleteConfirmation(false)
+                  setDeleteConfirmationText('')
+                }}
+              >
+                <Pressable
+                  onPress={() => {
+                    setShowDeleteConfirmation(false)
+                    setDeleteConfirmationText('')
+                  }}
+                  style={styles.overlay}
+                >
+                  <Pressable style={styles.deleteModalContainer}>
+                    {/* Modal header */}
+                    <View style={styles.deleteModalHeader}>
+                      <View className="w-16 h-16 bg-white rounded-full items-center justify-center mb-4">
+                        <AlertTriangle size={32} color="#ef4444" />
+                      </View>
+                      <Text style={styles.deleteModalTitle}>
+                        アカウント削除
+                      </Text>
+                      <Text style={styles.deleteModalSubtitle}>
+                        この操作は取り消すことができません
+                      </Text>
+                    </View>
+
+                    {/* Modal content */}
+                    <View style={styles.deleteModalContent}>
+                      <View className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+                        <Text className="text-base font-semibold text-gray-800 mb-3">
+                          アカウント削除について
+                        </Text>
+                        <View className="space-y-2">
+                          <Text className="text-sm text-black">
+                            • すべてのサブスクリプションデータが削除されます
+                          </Text>
+                          <Text className="text-sm text-black">
+                            • 設定や通知履歴も完全に削除されます
+                          </Text>
+                          <Text className="text-sm text-black">
+                            • この操作は取り消すことができません
+                          </Text>
+                          <Text className="text-sm text-black">
+                            • 削除後24時間以内にデータが完全に消去されます
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View className="flex-row space-x-3">
+                        <TouchableOpacity
+                          onPress={() => {
+                            setShowDeleteConfirmation(false)
+                            setDeleteConfirmationText('')
+                          }}
+                          className="flex-1 bg-white p-3 rounded-lg items-center justify-center"
+                        >
+                          <Text className="text-base font-medium text-gray-700">
+                            キャンセル
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={handleAccountDeletion}
+                          className="flex-1 p-3 rounded-lg items-center justify-center bg-red-600"
+                        >
+                          <Text className="text-white font-medium text-base">
+                            削除
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </Pressable>
+                </Pressable>
+              </Modal>
 
               {/* Save button */}
               <View style={styles.buttonContainer}>
@@ -419,7 +526,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    gap: 24,
+    gap: 16,
   },
   section: {
     marginBottom: 0,
@@ -475,16 +582,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 12,
-    backgroundColor: '#fef2f2',
+    backgroundColor: '#f3f4f6',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#fecaca',
+    borderColor: '#d1d5db',
     marginTop: 8,
   },
   logoutIcon: {
     marginRight: 8,
   },
   logoutText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  deleteAccountButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    backgroundColor: '#fef2f2',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    marginTop: 8,
+  },
+  deleteIcon: {
+    marginRight: 8,
+  },
+  deleteAccountText: {
     fontSize: 14,
     fontWeight: '500',
     color: '#ef4444',
@@ -591,5 +717,44 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     color: '#374151',
+  },
+  deleteModalContainer: {
+    backgroundColor: '#fef2f2',
+    borderRadius: 16,
+    margin: 32,
+    width: '100%',
+    maxWidth: '100%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  deleteModalHeader: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+    alignItems: 'center',
+  },
+  deleteModalIcon: {
+    marginBottom: 12,
+  },
+  deleteModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#1f2937',
+  },
+  deleteModalSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  deleteModalContent: {
+    padding: 20,
   },
 })
