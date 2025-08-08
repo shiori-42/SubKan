@@ -10,6 +10,23 @@ export interface Subscription {
   color: string
 }
 
+// 課金システム用の型定義
+export interface BillingInfo {
+  userId: string
+  isPremium: boolean
+  subscriptionStartDate: Date
+  nextBillingDate: Date
+  monthlyFee: number
+  freeTrialUsed: boolean
+}
+
+// ユーザー情報の型定義
+export interface User {
+  id: string
+  email: string
+  billingInfo: BillingInfo
+}
+
 // // --- 型定義 ---
 // interface Subscription {
 //   id: string
@@ -221,3 +238,19 @@ export const mockCategories: string[] = [
   'フィットネス',
   'その他',
 ]
+
+// 課金システム用のモックデータ
+export const mockBillingInfo: BillingInfo = {
+  userId: 'user1',
+  isPremium: true,
+  subscriptionStartDate: new Date('2025-01-15'),
+  nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30日後
+  monthlyFee: 330,
+  freeTrialUsed: true,
+}
+
+export const mockUser: User = {
+  id: 'user1',
+  email: 'shimeshime0123@gmail.com',
+  billingInfo: mockBillingInfo,
+}
