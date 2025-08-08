@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   Pressable,
+  StyleSheet,
 } from 'react-native'
 import { X, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react-native'
 import { Button, InputField } from '@/component/common'
@@ -21,6 +22,8 @@ export function PasswordChangeDialog({
   onOpenChange,
   onPasswordChange,
 }: PasswordChangeDialogProps) {
+  console.log('PasswordChangeDialog render - open:', open)
+
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -85,42 +88,48 @@ export function PasswordChangeDialog({
       animationType="fade"
       onRequestClose={handleCancel}
     >
-      <Pressable onPress={handleCancel} className="flex-1 justify-center items-center bg-black/60 p-4">
-        <Pressable className="w-full max-w-sm bg-white rounded-xl shadow-lg">
+      <Pressable
+        onPress={handleCancel}
+        className="flex-1 justify-center items-center bg-black/60 p-4"
+      >
+        <Pressable
+          style={styles.dialogContainer}
+          className="bg-white rounded-xl shadow-lg"
+        >
           {/* Header */}
-          <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
-            <View className="flex-row items-center flex-1">
-              <Lock size={22} color="#3b82f6" className="mr-3" />
-              <Text className="text-lg font-bold text-gray-800">パスワード変更</Text>
+          <View style={styles.header}>
+            <View style={styles.headerContent}>
+              <Lock size={24} color="#3b82f6" style={styles.headerIcon} />
+              <Text style={styles.headerTitle}>パスワード変更</Text>
             </View>
-            <TouchableOpacity onPress={handleCancel} className="p-1">
-              <X size={18} color="#6b7280" />
+            <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
+              <X size={20} color="#6b7280" />
             </TouchableOpacity>
           </View>
 
           {/* Content */}
-          <View className="p-4 space-y-4">
-            <Text className="text-sm text-gray-600 leading-5">
-              セキュリティを向上させるため、強力なパスワードを設定してください
+          <View style={styles.content}>
+            <Text style={styles.instructionText}>
+              新しいパスワードを入力してください
             </Text>
 
             {/* Current password */}
-            <View className="space-y-2">
-              <Text className="text-sm font-medium text-gray-800">現在のパスワード</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>現在のパスワード</Text>
               <InputField
                 placeholder="現在のパスワードを入力"
                 value={currentPassword}
                 onChangeText={setCurrentPassword}
                 secureTextEntry={!showCurrentPassword}
-                leftIcon={<Lock size={16} color="#6b7280" />}
+                leftIcon={<Lock size={18} color="#6b7280" />}
                 rightIcon={
                   <TouchableOpacity
                     onPress={() => setShowCurrentPassword(!showCurrentPassword)}
                   >
                     {showCurrentPassword ? (
-                      <EyeOff size={16} color="#6b7280" />
+                      <EyeOff size={18} color="#6b7280" />
                     ) : (
-                      <Eye size={16} color="#6b7280" />
+                      <Eye size={18} color="#6b7280" />
                     )}
                   </TouchableOpacity>
                 }
@@ -128,22 +137,22 @@ export function PasswordChangeDialog({
             </View>
 
             {/* New password */}
-            <View className="space-y-2">
-              <Text className="text-sm font-medium text-gray-800">新しいパスワード</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>新しいパスワード</Text>
               <InputField
                 placeholder="新しいパスワードを入力（8文字以上）"
                 value={newPassword}
                 onChangeText={setNewPassword}
                 secureTextEntry={!showNewPassword}
-                leftIcon={<Lock size={16} color="#6b7280" />}
+                leftIcon={<Lock size={18} color="#6b7280" />}
                 rightIcon={
                   <TouchableOpacity
                     onPress={() => setShowNewPassword(!showNewPassword)}
                   >
                     {showNewPassword ? (
-                      <EyeOff size={16} color="#6b7280" />
+                      <EyeOff size={18} color="#6b7280" />
                     ) : (
-                      <Eye size={16} color="#6b7280" />
+                      <Eye size={18} color="#6b7280" />
                     )}
                   </TouchableOpacity>
                 }
@@ -151,56 +160,48 @@ export function PasswordChangeDialog({
             </View>
 
             {/* Confirm password */}
-            <View className="space-y-2">
-              <Text className="text-sm font-medium text-gray-800">新しいパスワード（確認）</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>新しいパスワード（確認）</Text>
               <InputField
                 placeholder="新しいパスワードを再入力"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry={!showConfirmPassword}
-                leftIcon={<Lock size={16} color="#6b7280" />}
+                leftIcon={<Lock size={18} color="#6b7280" />}
                 rightIcon={
                   <TouchableOpacity
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff size={16} color="#6b7280" />
+                      <EyeOff size={18} color="#6b7280" />
                     ) : (
-                      <Eye size={16} color="#6b7280" />
+                      <Eye size={18} color="#6b7280" />
                     )}
                   </TouchableOpacity>
                 }
               />
             </View>
 
-            {/* Password requirements */}
-            <View className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-              <Text className="text-xs font-medium text-gray-700 mb-1">パスワード要件:</Text>
-              <Text className="text-xs text-gray-600 mb-0.5">• 8文字以上</Text>
-              <Text className="text-xs text-gray-600 mb-0.5">• 英数字を含む</Text>
-              <Text className="text-xs text-gray-600">• 特殊文字を含む（推奨）</Text>
-            </View>
-
             {/* Error message */}
             {error ? (
-              <View className="flex-row items-center bg-red-50 p-3 rounded-lg border border-red-200">
+              <View style={styles.errorContainer}>
                 <AlertCircle
-                  size={16}
+                  size={18}
                   color="#ef4444"
-                  className="mr-2"
+                  style={styles.errorIcon}
                 />
-                <Text className="text-sm text-red-600 flex-1">{error}</Text>
+                <Text style={styles.errorText}>{error}</Text>
               </View>
             ) : null}
 
             {/* Buttons */}
-            <View className="flex-row space-x-3 mt-2">
+            <View style={styles.buttonContainer}>
               <TouchableOpacity
                 onPress={handleCancel}
-                className="flex-1 p-3 bg-gray-100 rounded-lg items-center"
+                style={styles.cancelButton}
                 disabled={isLoading}
               >
-                <Text className="text-base font-medium text-gray-700">キャンセル</Text>
+                <Text style={styles.cancelButtonText}>キャンセル</Text>
               </TouchableOpacity>
               <Button
                 title="変更する"
@@ -217,3 +218,98 @@ export function PasswordChangeDialog({
     </Modal>
   )
 }
+
+const styles = StyleSheet.create({
+  dialogContainer: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  headerIcon: {
+    marginRight: 12,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  closeButton: {
+    padding: 8,
+  },
+  content: {
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+  },
+  instructionText: {
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    marginBottom: 20,
+  },
+  errorIcon: {
+    marginRight: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#dc2626',
+    flex: 1,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+  },
+})
