@@ -1,15 +1,15 @@
 // Header component for the main app navigation
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { CreditCard, Settings, Plus } from 'lucide-react-native'
+import { CreditCard, Settings, Bell } from 'lucide-react-native'
 
 interface HeaderProps {
-  onAddPress?: () => void
   onSettingsPress?: () => void
+  onNotificationPress?: () => void
 }
 
 const Header = ({
-  onAddPress,
   onSettingsPress,
+  onNotificationPress,
 }: HeaderProps): React.JSX.Element => {
   return (
     <View className="flex-row items-end justify-between p-4 h-[104px]">
@@ -24,23 +24,19 @@ const Header = ({
         </View>
       </View>
       <View className="flex-row space-x-2">
+        {/* Notification button */}
+        <Pressable
+          onPress={onNotificationPress}
+          className="bg-white/70 p-2 rounded-lg mr-2"
+        >
+          <Bell color="#6b7280" size={20} />
+        </Pressable>
         {/* Settings button */}
         <Pressable
-          className="bg-white/70 p-2 rounded-lg mr-2"
           onPress={onSettingsPress}
+          className="bg-white/70 p-2 rounded-lg mr-2"
         >
-          <Settings color="#374151" size={20} />
-        </Pressable>
-        {/* Add button */}
-        <Pressable
-          className="bg-orange-400 rounded-lg flex-row items-center"
-          style={styles.addButton}
-          onPress={onAddPress}
-        >
-          <Plus color="white" size={20} style={styles.plusIcon} />
-          <Text className="text-white" style={styles.addButtonText}>
-            追加
-          </Text>
+          <Settings color="#6b7280" size={20} />
         </Pressable>
       </View>
     </View>
@@ -50,18 +46,6 @@ const Header = ({
 const styles = StyleSheet.create({
   icon: {
     marginRight: 12,
-  },
-  plusIcon: {
-    marginRight: 4,
-  },
-  addButton: {
-    minWidth: 80,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  addButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
   },
 })
 

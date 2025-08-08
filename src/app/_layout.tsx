@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, SafeAreaView } from 'react-native'
+import { View, SafeAreaView, Alert } from 'react-native'
 import { TabNavigation } from '../component/TabNavigation'
 import Header from '@/component/Header'
 import ListView from './subscription/list'
@@ -7,12 +7,12 @@ import CalendarView from './subscription/calendar'
 import { AnalyticsView } from './subscription/analytics'
 import AddSubscriptionDialog from '@/component/AddSubscriptionDialog'
 import { SettingsDialog } from '@/component/SettingsDialog'
-import { EmailChangeDialog } from '@/component/EmailChangeDialog'
-import { PasswordChangeDialog } from '@/component/PasswordChangeDialog'
 import { AuthScreen } from '@/component/AuthScreen'
 import { LoadingScreen } from '@/component/LoadingScreen'
 import { LoadingProvider, useLoading } from '@/context/LoadingContext'
 import { mockSubscriptions, Subscription } from '@/data/mockData'
+import NotificationSettings from '@/component/NotificationSettings'
+import AccountSettings from '@/component/AccountSettings'
 import '../../global.css'
 
 const LayoutContent = (): React.JSX.Element => {
@@ -20,8 +20,9 @@ const LayoutContent = (): React.JSX.Element => {
   const [activeTab, setActiveTab] = useState('list')
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
-  const [showEmailChangeDialog, setShowEmailChangeDialog] = useState(false)
-  const [showPasswordChangeDialog, setShowPasswordChangeDialog] = useState(false)
+  const [showNotificationSettings, setShowNotificationSettings] =
+    useState(false)
+  const [showAccountSettings, setShowAccountSettings] = useState(false)
   const [subscriptions, setSubscriptions] =
     useState<Subscription[]>(mockSubscriptions)
   const [currentEmail, setCurrentEmail] = useState('user@example.com')
@@ -32,7 +33,11 @@ const LayoutContent = (): React.JSX.Element => {
   }
 
   const handleSettingsPress = () => {
-    setShowSettingsDialog(true)
+    setShowAccountSettings(true)
+  }
+
+  const handleNotificationPress = () => {
+    setShowNotificationSettings(true)
   }
 
   const handleAuthSuccess = () => {
@@ -48,11 +53,16 @@ const LayoutContent = (): React.JSX.Element => {
     setCurrentEmail(newEmail)
     // TODO: Implement actual email change logic
     console.log('Email changed to:', newEmail)
+    Alert.alert('成功', 'メールアドレスが変更されました')
   }
 
-  const handlePasswordChange = (currentPassword: string, newPassword: string) => {
+  const handlePasswordChange = (
+    currentPassword: string,
+    newPassword: string
+  ) => {
     // TODO: Implement actual password change logic
     console.log('Password changed:', { currentPassword, newPassword })
+    Alert.alert('成功', 'パスワードが変更されました')
   }
 
   const handleAddSubscription = (subscriptionData: any) => {
@@ -103,13 +113,38 @@ const LayoutContent = (): React.JSX.Element => {
     return <AuthScreen onAuthSuccess={handleAuthSuccess} />
   }
 
+  // 通知設定画面を表示
+  if (showNotificationSettings) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF7ED' }}>
+        <NotificationSettings
+          onBack={() => setShowNotificationSettings(false)}
+        />
+      </SafeAreaView>
+    )
+  }
+
+  // アカウント設定画面を表示
+  if (showAccountSettings) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF7ED' }}>
+        <AccountSettings
+          onBack={() => setShowAccountSettings(false)}
+          onLogout={handleLogout}
+          onEmailChange={() => setShowEmailChangeDialog(true)}
+          onPasswordChange={() => setShowPasswordChangeDialog(true)}
+        />
+      </SafeAreaView>
+    )
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF7ED' }}>
       <View className="flex-1 p-4">
         {/* ヘッダー */}
         <Header
-          onAddPress={handleAddPress}
           onSettingsPress={handleSettingsPress}
+          onNotificationPress={handleNotificationPress}
         />
 
         {/* タブナビゲーション */}
@@ -147,21 +182,6 @@ const LayoutContent = (): React.JSX.Element => {
           onEmailChange={() => setShowEmailChangeDialog(true)}
           onPasswordChange={() => setShowPasswordChangeDialog(true)}
           currentEmail={currentEmail}
-        />
-
-        {/* メールアドレス変更ダイアログ */}
-        <EmailChangeDialog
-          open={showEmailChangeDialog}
-          onOpenChange={setShowEmailChangeDialog}
-          currentEmail={currentEmail}
-          onEmailChange={handleEmailChange}
-        />
-
-        {/* パスワード変更ダイアログ */}
-        <PasswordChangeDialog
-          open={showPasswordChangeDialog}
-          onOpenChange={setShowPasswordChangeDialog}
-          onPasswordChange={handlePasswordChange}
         />
       </View>
     </SafeAreaView>
